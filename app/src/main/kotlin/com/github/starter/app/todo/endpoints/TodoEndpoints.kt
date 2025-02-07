@@ -3,7 +3,6 @@ package com.github.starter.app.todo.endpoints;
 import com.github.starter.app.todo.model.TodoTask;
 import com.github.starter.app.todo.service.TodoService;
 import com.github.starter.core.container.Container;
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono;

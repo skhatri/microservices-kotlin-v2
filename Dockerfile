@@ -1,4 +1,4 @@
-FROM cloudnativek8s/microservices-java-alpine:v1.0.30
+FROM cloudnativek8s/microservices-java21-alpine:v1.0.35
 
 ENV LANGUAGE='en_US:en'
 

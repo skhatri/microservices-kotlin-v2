@@ -1,0 +1,115 @@
+version: '3.9'
+services:
+
+  starter:
+    container_name: starter
+    environment:
+      - "POSTGRES_USER=${POSTGRES_HOST:-postgres}"
+      - "POSTGRES_HOST=postgres"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+
+
+  postgres:
+    command: [ /bin/bash, -c, /tmp/scripts/init.sh ]
+    container_name: postgres-data
+    depends_on:
+      postgres-server:
+        condition: service_healthy
+    environment:
+      - "POSTGRES_USER=${POSTGRES_USER:-postgres}"
+      - "PGPASSWORD=${POSTGRES_PASSWORD:-postgres}"
+    image: "postgres:${POSTGRES_VERSION:-17.0}"
+    volumes:
+      - "./scripts/containers/postgres/script/init.sh:/tmp/scripts/init.sh"
+      - "${POSTGRES_DATA:-./scripts/containers/postgres/sql}:/tmp/data/sql"
+
+
+  postgres-server:
+    container_name: postgres
+    environment:
+      - "POSTGRES_USER=${POSTGRES_USER:-postgres}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}"
+      - PGDATA=/data/postgres
+    healthcheck:
+      interval: 10s
+      retries: 3
+      test: [ CMD-SHELL, pg_isready ]
+      timeout: 5s
+    image: "postgres:${POSTGRES_VERSION:-17.0}"
+    volumes:
+      - "./scripts/containers/postgres/csv:/tmp/data/csv"
+    ports:
+      - "5432:5432"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.0
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - "8080:8080"
+    volumes: [ ]
+    container_name: keycloak
+    command:
+      - "start-dev"
+      - "--health-enabled=true"
+
+  keycloak-init:
+    image: jq
+    container_name: keycloak-init
+    volumes:
+      - ./scripts/containers/keycloak/setup.sh:/tmp/setup.sh
+    command:
+      - /tmp/setup.sh
+    restart: on-failure
+    depends_on:
+      - keycloak
+
+  kong:
+    container_name: kong
+    depends_on:
+      kong-data:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_completed_successfully
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=postgres
+      - KONG_PG_USER=postgres
+      - KONG_PG_PASSWORD=postgres
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001,0.0.0.0:8444 ssl
+      - KONG_PLUGINS=rate-limiting
+    healthcheck:
+      interval: 10s
+      retries: 5
+      test: [ CMD-SHELL, kong health ]
+      timeout: 10s
+    image: "kong:${KONG_VERSION:-3.8.0}"
+    ports:
+      - 8001:8001
+      - 8000:8000
+    restart: unless-stopped
+
+  kong-data:
+    command:
+      - kong
+      - migrations
+      - bootstrap
+    container_name: kong-data
+    depends_on:
+      postgres:
+        condition: service_completed_successfully
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_HOST=postgres
+      - KONG_PG_USER=postgres
+      - KONG_PG_PASSWORD=postgres
+    image: "kong:${KONG_VERSION:-3.8.0}"

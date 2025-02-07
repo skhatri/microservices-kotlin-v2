@@ -22,14 +22,14 @@ open class DefaultTodoRepository @Autowired constructor(
 
     override fun listItems(): Mono<List<TodoTask>> {
         return databaseClient
-            .sql("select * from todo.tasks limit 20").mapProperties(TodoTask::class.java)
+            .sql("select * from app.tasks limit 20").mapProperties(TodoTask::class.java)
             .all().collectList()
     }
 
     @Override
     override fun findById(id: String): Mono<TodoTask> {
         return databaseClient
-            .sql("select * from todo.tasks where id= $1").bind("$1", id)
+            .sql("select * from app.tasks where id= $1").bind("$1", id)
             .mapProperties(TodoTask::class.java)
             .first();
     }
@@ -38,7 +38,7 @@ open class DefaultTodoRepository @Autowired constructor(
         val id: String = UUID.randomUUID().toString();
         val updated: LocalDateTime = LocalDateTime.now();
         return databaseClient
-            .sql("insert into todo.tasks(id, description, action_by, created, status, updated) values($1, $2, $3, $4, $5, $6)")
+            .sql("insert into app.tasks(id, description, action_by, created, status, updated) values($1, $2, $3, $4, $5, $6)")
             .bind("$1", id)
             .bind("$2", todoTask.description)
             .bind("$3", todoTask.actionBy ?: "")
@@ -72,7 +72,7 @@ open class DefaultTodoRepository @Autowired constructor(
     @Override
     override fun update(todoTask: TodoTask): Mono<TodoTask> {
         val updatedTime: LocalDateTime = LocalDateTime.now();
-        return databaseClient.sql("update todo.tasks set description=$1, action_by=$2, status=$3, updated=$4 where id=$5")
+        return databaseClient.sql("update app.tasks set description=$1, action_by=$2, status=$3, updated=$4 where id=$5")
             .bind("$1", todoTask.description)
             .bind("$2", todoTask.actionBy ?: "")
             .bind("$3", todoTask.status ?: "NEW")
@@ -103,7 +103,7 @@ open class DefaultTodoRepository @Autowired constructor(
 
     @Override
     override fun delete(id: String): Mono<Boolean> {
-        return databaseClient.sql("delete from todo.tasks where id = $1")
+        return databaseClient.sql("delete from app.tasks where id = $1")
             .bind("$1", id).fetch().rowsUpdated()
             .filter(LongValuePredicate(1))
             .switchIfEmpty(

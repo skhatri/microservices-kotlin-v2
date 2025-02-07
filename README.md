@@ -23,6 +23,15 @@ Microservices Starter Project
 | Code Style   | Checkstyle |
 | Load Testing | Gatling    |
 
+### 1. data setup
+We make use of some large data files which are downloaded to your local directory. Please run ```./scripts/init.sh``` to download the files used in this project.
+
+### 2. Start Database
+We will be running postgres
+```
+docker-compose up postgres -d
+```
+
 ### load-testing
 Gatling
 
@@ -47,3 +56,4 @@ Publish results using
 ```
 snyk monitor --all-sub-projects
 ```
+

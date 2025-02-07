@@ -5,9 +5,9 @@ flags:
     ssl: true
     http2: true
     jdbc: true
-    h2: true
-    postgres: false
-  default-jdbc-client: "${JDBC_CLIENT_NAME:default-jdbc-client-h2}"
+    postgres: true
+    h2: false
+  default-jdbc-client: "${JDBC_CLIENT_NAME:default-jdbc-client-pg}"
 
 
 server.ssl:
@@ -56,28 +56,12 @@ secrets:
 datasource.jdbc:
   enabled: ${flags.use.jdbc}
   ref:
-    - name: default-jdbc-client-h2
-      driver: h2
-      username: sa
-      password: "secret::vault::h2_password:-"
-      protocol: mem
-      database: "testdb"
-      enabled: ${flags.use.h2}
-      load: "h2"
-
-    - name: h2-1
-      driver: h2
-      username: sa
-      password: "secret::vault::h2_password:-"
-      protocol: mem
-      database: "testdb2"
-      enabled: ${flags.use.h2}
 
     - name: default-jdbc-client-pg
       driver: postgresql
-      username: "secret::vault::postgres_username:-todo_admin"
-      password: "secret::vault::postgres_password:-password"
-      host: ${POSTGRES_HOST:postgres}
+      username: "secret::vault::postgres_username:-starter_user"
+      password: "secret::vault::postgres_password:-starter"
+      host: ${POSTGRES_HOST:localhost}
       port: ${POSTGRES_PORT:5432}
-      database: todo
+      database: starter
       enabled: ${flags.use.postgres}

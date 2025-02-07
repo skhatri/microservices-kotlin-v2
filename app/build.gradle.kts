@@ -22,13 +22,16 @@ val coroutineVersion = project.findProperty("coroutine.version") as String? ?: "
 val jupiterVersion = project.findProperty("jupiter.version") as String? ?: "5.11.4"
 val junitPlatformVersion = project.findProperty("junitplatform.version") as String? ?: "1.11.4"
 val testContainersVersion = project.findProperty("testcontainers.version") as String? ?: "1.20.4"
-
+val serverType = project.findProperty("server.type") as String? ?: "reactor-netty"
 
 dependencies {
     listOf(
-            "spring-boot-starter-webflux",
-            "spring-boot-starter-${project.ext["server.type"]}",
-            "spring-boot-starter"
+        "spring-boot-starter-webflux",
+        "spring-boot-starter-$serverType",
+        "spring-boot-starter",
+        "spring-boot-starter-websocket",
+        "spring-boot-starter-graphql",
+        "spring-boot-starter-actuator"
     ).forEach { name ->
         implementation("org.springframework.boot:${name}") {
             exclude(module = "spring-boot-starter-logging")
@@ -55,17 +58,24 @@ dependencies {
     }
     implementation("io.projectreactor.addons:reactor-adapter:3.5.2")
     implementation("org.yaml:snakeyaml:2.3")
-    implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")
-    implementation("io.r2dbc:r2dbc-h2:1.0.0.RELEASE")
-    implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")
+    implementation("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
     implementation("org.springframework.data:spring-data-r2dbc:3.4.2")
 
     implementation("io.github.skhatri:mounted-secrets-client:0.2.5")
+
+    implementation("io.micrometer:micrometer-registry-otlp")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")
         exclude(module = "mockito-core")
         exclude(module = "spring-boot-starter-logging")
     }
+    testImplementation("org.springframework.graphql:spring-graphql-test")
+    testImplementation("org.springframework.boot:spring-boot-test") {
+        exclude(module="spring-boot-starter-logging")
+    }
+    testImplementation("com.intuit.karate:karate-junit5:1.4.1")
+
     testImplementation("io.projectreactor:reactor-test:3.5.2")
     testImplementation("org.mockito:mockito-core:5.15.2")
 
@@ -110,7 +120,7 @@ tasks.build {
 
 tasks.jacocoTestReport {
     reports {
-        xml.required = false 
+        xml.required = false
         csv.required = false
         html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
     }
@@ -158,10 +168,10 @@ task("runApp", JavaExec::class) {
     mainClass = "com.github.starter.ApplicationKt"
     classpath = sourceSets["main"].runtimeClasspath
     jvmArgs = listOf(
-            "-Xms512m", "-Xmx512m"
+        "-Xms512m", "-Xmx512m"
     )
 }
 
 kotlin {
-  jvmToolchain(21)
+    jvmToolchain(21)
 }

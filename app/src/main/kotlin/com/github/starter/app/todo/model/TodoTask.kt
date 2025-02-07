@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-class TodoTask @JsonCreator constructor(
+class
+TodoTask @JsonCreator constructor(
     @JsonProperty("id") val id: String, @JsonProperty("description") val description: String, @JsonProperty("action_by") val actionBy: String?,
     @JsonProperty("created") val created: LocalDateTime?, @JsonProperty("status") val status: String?, @JsonProperty("updated") val updated: LocalDateTime?) : Serializable {
 

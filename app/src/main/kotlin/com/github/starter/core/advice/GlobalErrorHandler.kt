@@ -12,6 +12,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.codec.ServerCodecConfigurer
+import org.springframework.http.codec.support.DefaultServerCodecConfigurer
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.*
 
@@ -20,7 +21,7 @@ import org.springframework.web.reactive.function.server.*
 open class GlobalErrorHandler @Autowired constructor(
     errorAttributes: CustomErrorAttributes,
     applicationContext: ApplicationContext,
-    codecConfigurer: ServerCodecConfigurer
+    codecConfigurer: ServerCodecConfigurer = DefaultServerCodecConfigurer()
 ) :
     AbstractErrorWebExceptionHandler(errorAttributes, WebProperties.Resources(), applicationContext) {
     init {
