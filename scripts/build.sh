@@ -6,9 +6,9 @@ runServerAndTest(){
   local sub=$1
   if [[ $sub == "rebuild" ]];
   then
-    docker-compose build starter
+    docker compose build starter
   fi;
-  docker-compose up postgres starter -d
+  docker compose up postgres starter -d
   attempt=0
   test=0
   while [[ true ]];
@@ -31,7 +31,7 @@ runServerAndTest(){
   if [[ $test -eq 1 ]];
   then
     ./gradlew integration-test:test
-    docker-compose down
+    docker compose down
   else
     echo "server did not start."
   fi;

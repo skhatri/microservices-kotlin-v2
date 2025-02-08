@@ -17,3 +17,9 @@ build: init
 image: build
 	@docker build --no-cache -t microservices-kotlin-v2 -f .
 
+buildCompose: build
+	@docker compose build starter
+
+up: buildCompose
+	@docker compose up postgres starter -d
+

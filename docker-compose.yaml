@@ -6,6 +6,13 @@ services:
     environment:
       - "POSTGRES_USER=${POSTGRES_HOST:-postgres}"
       - "POSTGRES_HOST=postgres"
+      - "OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317"
+      - "OTEL_RESOURCE_ATTRIBUTES=service.name=starter"
+      - "OTEL_LOGS_EXPORTER=none"
+      - "OTEL_EXPORTER_OTLP_INSECURE=true"
+      - "OTEL_EXPORTER_OTLP_METRICS_INSECURE=true"
+      - "OTEL_EXPORTER_OTLP_PROTOCOL=grpc"
+      - "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://otel-collector:4318/v1/metrics"
     build:
       context: .
       dockerfile: Dockerfile
@@ -113,3 +120,52 @@ services:
       - KONG_PG_USER=postgres
       - KONG_PG_PASSWORD=postgres
     image: "kong:${KONG_VERSION:-3.8.0}"
+
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      - ./scripts/containers/otel/prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - otel-collector
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-otlp-receiver"
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.119.0
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./scripts/containers/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"
+      - "55679:55679" # zpages extension
+    depends_on:
+      - jaeger-all-in-one
+      - zipkin-all-in-one
+
+
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:latest
+    restart: always
+    ports:
+      - "16686:16686"
+      - "14268"
+      - "14250"
+
+  zipkin-all-in-one:
+    image: openzipkin/zipkin:latest
+    environment:
+      - JAVA_OPTS=-Xms1024m -Xmx1024m -XX:+ExitOnOutOfMemoryError
+    restart: always
+    ports:
+      - "9411:9411"

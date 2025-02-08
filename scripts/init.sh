@@ -28,3 +28,12 @@ if [[ ! -f ${CSV_DIR}/epl-table-1992-2024.csv ]];
 then
   download_data_file epl/epl-table-1992-2024.csv epl-table-1992-2024.csv
 fi;
+
+download_otel(){
+  if [[ ! -d out/otel ]]; then
+    mkdir -p out/otel
+  fi;
+  curl -sL -o out/otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+}
+
+download_otel

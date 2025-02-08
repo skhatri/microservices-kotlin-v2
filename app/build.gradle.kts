@@ -64,6 +64,7 @@ dependencies {
     implementation("io.github.skhatri:mounted-secrets-client:0.2.5")
 
     implementation("io.micrometer:micrometer-registry-otlp")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "junit")

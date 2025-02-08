@@ -1,0 +1,46 @@
+
+# Type representing a Pokémon with various attributes.
+type Pokemon {
+    # The name of the Pokémon.
+    # This field is required and must be a non-nullable String.
+    name: String!
+
+    # The base stat value of the Pokémon. Legendary pokemons usually have higher base stat.
+    # This field is required and must be a non-nullable Int.
+    baseStat: Int!
+
+    # The primary type of the Pokémon, e.g., 'electric', 'fire', etc.
+    # This field is required and must be a non-nullable String.
+    primaryType: String!
+
+    # The secondary type of the Pokémon, if any. Some pokemons have two types.
+    # This field is optional and can be a nullable String.
+    secondaryType: String
+
+    # The location where the Pokémon is found.
+    # This field is required and must be a non-nullable String.
+    location: String!
+
+    # Indicates whether the Pokémon is legendary or not.
+    # This field is optional and can be a nullable Boolean.
+    legendary: Boolean
+
+    # The list of weaknesses of the Pokémon, e.g., ['ground', 'water'].
+    # This field is required and must be a non-nullable list of non-nullable Strings.
+    weakness: [String!]!
+
+    # The height of the Pokémon in meters.
+    # This field is required and must be a non-nullable Float.
+    height: Float!
+
+    # The weight of the Pokémon in kilograms.
+    # This field is required and must be a non-nullable Float.
+    weight: Float!
+}
+
+extend type Query {
+    # Retrieves a list of Pokémon.
+    # This field returns a non-nullable list of Pokémon types.
+    # Each Pokémon in the list is non-nullable.
+    getPokemonList: [Pokemon!]
+}

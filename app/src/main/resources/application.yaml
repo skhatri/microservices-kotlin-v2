@@ -38,6 +38,17 @@ endpoints:
 server.error.whitelabel.enabled: false
 
 
+management:
+  otlp:
+    metrics:
+      export:
+        url: "http://otel-collector:4318/v1/metrics"
+        batchSize: 15000
+        step: 30s
+
+core:
+  db: ${APP_DB:pg}
+
 secrets:
   enabled: true
   config:
@@ -65,3 +76,4 @@ datasource.jdbc:
       port: ${POSTGRES_PORT:5432}
       database: starter
       enabled: ${flags.use.postgres}
+

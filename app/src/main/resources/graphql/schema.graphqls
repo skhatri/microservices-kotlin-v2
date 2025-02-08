@@ -1,0 +1,74 @@
+# Interface representing the basic server status information
+interface ServerStat {
+    # The current status of the server.
+    # This field is required and must be a non-nullable String.
+    status: String!
+
+    # The timestamp of the server status in ISO 8601 format.
+    # This field is required and must be a non-nullable String.
+    server_time: String!
+}
+
+# Type representing the server status with specific implementation details.
+# This type implements the ServerStat interface.
+type Status implements ServerStat {
+    # The current status of the server.
+    # This field is required and must be a non-nullable String.
+    status: String!
+
+    # The timestamp of when the server status was recorded.
+    # This field is required and must be a non-nullable String in ISO 8601 format.
+    server_time: String!
+}
+
+
+# Type representing the server status with additional reason information.
+# This type implements the ServerStat interface and includes an additional field for reason.
+type StatusReason implements ServerStat {
+    # The current status of the server.
+    # This field is required and must be a non-nullable String.
+    status: String!
+
+    # The timestamp of when the server status was recorded.
+    # This field is required and must be a non-nullable String in ISO 8601 format.
+    server_time: String!
+
+    # The reason for the current status of the server.
+    # This field is required and must be a non-nullable String.
+    reason: String!
+}
+
+
+# The root Query type for fetching server status and Pokémon data.
+type Query {
+    # Fetches the basic status of the server.
+    # This field returns a Status type which implements ServerStat.
+    # The Status type includes fields for status and server time.
+    health: Status!
+
+    # Fetches detailed server status including a reason for the status.
+    # This field returns a StatusReason type which implements ServerStat.
+    # The StatusReason type includes additional fields for reason in addition to status and server time.
+    detailedHealthCheck: StatusReason!
+
+}
+
+# Type representing the server status with specific implementation details.
+# This type implements the ServerStat interface.
+type StatusStream implements ServerStat {
+    # The stream status id
+    id: String!
+    # The current status of the server.
+    # This field is required and must be a non-nullable String.
+    status: String!
+
+    # The timestamp of when the server status was recorded.
+    # This field is required and must be a non-nullable String in ISO 8601 format.
+    server_time: String!
+}
+
+
+
+type Subscription {
+    streamHealth: StatusStream!
+}
