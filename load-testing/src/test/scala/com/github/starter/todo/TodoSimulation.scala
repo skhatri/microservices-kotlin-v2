@@ -94,7 +94,7 @@ class TodoSimulation extends Simulation {
   }
 
   setUp(
-    searchScenario.inject(rampUsers(20) during (10 seconds)),
+    searchScenario.inject(rampUsers(10) during (10 seconds)),
     addScenario.inject(atOnceUsers(4)),
     editScenario.inject(nothingFor(10 seconds), rampUsers(2) during (10 seconds))
   ).protocols(Todo.httpProtocol).maxDuration(2 minutes)
@@ -106,16 +106,16 @@ class ListSimulation extends Simulation {
   val searchScenarioClosed: PopulationBuilder = scenario("Todo Search").during(5 minutes) {
     exec(Todo.search)
   }.inject(
-    constantConcurrentUsers(10) during (30 seconds),
-    rampConcurrentUsers(10) to (20) during (10 seconds)
+    constantConcurrentUsers(5) during (30 seconds),
+    rampConcurrentUsers(2) to (8) during (10 seconds)
   )
 
   val searchScenarioOpen: PopulationBuilder = scenario("Todo Search").during(5 minutes) {
     exec(Todo.search)
   }.inject(
     nothingFor(10 seconds),
-    rampUsersPerSec(0) to 100 during (5 seconds),
-    constantUsersPerSec(100) during (30 seconds)
+    rampUsersPerSec(0) to 10 during (5 seconds),
+    constantUsersPerSec(5) during (30 seconds)
   )
 
 

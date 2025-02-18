@@ -1,17 +1,32 @@
 version: '3.9'
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+    tag: "{{.Name}}"
+
+
+networks:
+  default:
+    name: microservices
+    driver: bridge
 services:
 
   starter:
+    profiles:
+      - app
     container_name: starter
     environment:
       - "POSTGRES_USER=${POSTGRES_HOST:-postgres}"
       - "POSTGRES_HOST=postgres"
-      - "OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317"
+      - "OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}"
+      - "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}/v1/traces"
       - "OTEL_RESOURCE_ATTRIBUTES=service.name=starter"
       - "OTEL_LOGS_EXPORTER=none"
+      - "OTEL_SERVICE_NAME=starter"
       - "OTEL_EXPORTER_OTLP_INSECURE=true"
       - "OTEL_EXPORTER_OTLP_METRICS_INSECURE=true"
-      - "OTEL_EXPORTER_OTLP_PROTOCOL=grpc"
       - "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://otel-collector:4318/v1/metrics"
     build:
       context: .
@@ -19,8 +34,9 @@ services:
     ports:
       - "8080:8080"
 
-
   postgres:
+    profiles:
+      - app
     command: [ /bin/bash, -c, /tmp/scripts/init.sh ]
     container_name: postgres-data
     depends_on:
@@ -36,6 +52,8 @@ services:
 
 
   postgres-server:
+    profiles:
+      - app
     container_name: postgres
     environment:
       - "POSTGRES_USER=${POSTGRES_USER:-postgres}"
@@ -53,6 +71,8 @@ services:
       - "5432:5432"
 
   keycloak:
+    profiles:
+      - gateway
     image: quay.io/keycloak/keycloak:22.0.0
     environment:
       - KEYCLOAK_ADMIN=admin
@@ -66,7 +86,9 @@ services:
       - "--health-enabled=true"
 
   keycloak-init:
-    image: jq
+    profiles:
+      - gateway
+    image: skhtari/jq
     container_name: keycloak-init
     volumes:
       - ./scripts/containers/keycloak/setup.sh:/tmp/setup.sh
@@ -77,6 +99,8 @@ services:
       - keycloak
 
   kong:
+    profiles:
+      - gateway
     container_name: kong
     depends_on:
       kong-data:
@@ -106,6 +130,8 @@ services:
     restart: unless-stopped
 
   kong-data:
+    profiles:
+      - gateway
     command:
       - kong
       - migrations
@@ -122,50 +148,146 @@ services:
     image: "kong:${KONG_VERSION:-3.8.0}"
 
 
-  prometheus:
-    image: prom/prometheus:latest
-    restart: always
-    volumes:
-      - ./scripts/containers/otel/prometheus.yaml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    depends_on:
-      - otel-collector
+
+  jaeger:
+    profiles:
+      - otel
+    image: ${JAEGERTRACING_IMAGE}
+    container_name: jaeger
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--web.enable-otlp-receiver"
-
-  otel-collector:
-    image: otel/opentelemetry-collector:0.119.0
-    restart: always
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./scripts/containers/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - "--memory.max-traces=5000"
+      - "--query.base-path=/jaeger/ui"
+      - "--prometheus.server-url=http://${PROMETHEUS_ADDR}"
+      - "--prometheus.query.normalize-calls=true"
+      - "--prometheus.query.normalize-duration=true"
+    deploy:
+      resources:
+        limits:
+          memory: 400M
+    restart: unless-stopped
     ports:
-      - "1888:1888"   # pprof extension
-      - "8888:8888"   # Prometheus metrics exposed by the collector
-      - "8889:8889"   # Prometheus exporter metrics
-      - "13133:13133" # health_check extension
-      - "4317:4317"   # OTLP gRPC receiver
-      - "4318:4318"
-      - "55679:55679" # zpages extension
-    depends_on:
-      - jaeger-all-in-one
-      - zipkin-all-in-one
-
-
-  jaeger-all-in-one:
-    image: jaegertracing/all-in-one:latest
-    restart: always
-    ports:
-      - "16686:16686"
-      - "14268"
-      - "14250"
-
-  zipkin-all-in-one:
-    image: openzipkin/zipkin:latest
+      - "${JAEGER_PORT}:${JAEGER_PORT}"         # Jaeger UI
+      - "${OTEL_COLLECTOR_PORT_GRPC}"
     environment:
-      - JAVA_OPTS=-Xms1024m -Xmx1024m -XX:+ExitOnOutOfMemoryError
-    restart: always
+      - METRICS_STORAGE_TYPE=prometheus
+    logging: *logging
+
+  # Grafana
+  grafana:
+    profiles:
+      - otel
+    image: ${GRAFANA_IMAGE}
+    container_name: grafana
+    deploy:
+      resources:
+        limits:
+          memory: 120M
+    restart: unless-stopped
+    environment:
+      - "GF_INSTALL_PLUGINS=grafana-opensearch-datasource"
+    volumes:
+      - ./scripts/containers/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./scripts/containers/grafana/provisioning/:/etc/grafana/provisioning/
     ports:
-      - "9411:9411"
+      - "${GRAFANA_PORT}:${GRAFANA_PORT}"
+    logging: *logging
+
+  # OpenTelemetry Collector
+  otel-collector:
+    profiles:
+      - otel
+    image: ${COLLECTOR_CONTRIB_IMAGE}
+    container_name: otel-collector
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    restart: unless-stopped
+    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-config-extras.yml" ]
+    user: 0:0
+    volumes:
+      - ${HOST_FILESYSTEM}:/hostfs:ro
+      - ${DOCKER_SOCK}:/var/run/docker.sock:ro
+      - ${OTEL_COLLECTOR_CONFIG}:/etc/otelcol-config.yml
+      - ${OTEL_COLLECTOR_CONFIG_EXTRAS}:/etc/otelcol-config-extras.yml
+    ports:
+      - "${OTEL_COLLECTOR_PORT_GRPC}:${OTEL_COLLECTOR_PORT_GRPC}"
+      - "${OTEL_COLLECTOR_PORT_HTTP}:${OTEL_COLLECTOR_PORT_HTTP}"
+      - "9888:9888"
+      - "8888:8888"
+    depends_on:
+      jaeger:
+        condition: service_started
+      opensearch:
+        condition: service_healthy
+    logging: *logging
+    environment:
+      - ENVOY_PORT
+      - HOST_FILESYSTEM
+      - OTEL_COLLECTOR_HOST
+      - OTEL_COLLECTOR_PORT_GRPC
+      - OTEL_COLLECTOR_PORT_HTTP
+
+  # Prometheus
+  prometheus:
+    profiles:
+      - otel
+    image: ${PROMETHEUS_IMAGE}
+    container_name: prometheus
+    command:
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --storage.tsdb.retention.time=1h
+      - --config.file=/etc/prometheus/prometheus-config.yaml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+      - --web.route-prefix=/
+      - --web.enable-otlp-receiver
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ${PROMETHEUS_CONFIG}:/etc/prometheus/prometheus-config.yaml
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT}:${PROMETHEUS_PORT}"
+    logging: *logging
+
+  # OpenSearch
+  opensearch:
+    profiles:
+      - otel
+    image: ${OPENSEARCH_IMAGE}
+    container_name: opensearch
+    deploy:
+      resources:
+        limits:
+          memory: 1100M
+    restart: unless-stopped
+    environment:
+      - cluster.name=demo-cluster
+      - node.name=demo-node
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - OPENSEARCH_JAVA_OPTS=-Xms300m -Xmx300m
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - DISABLE_SECURITY_PLUGIN=true
+      - _JAVA_OPTIONS
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: curl -s http://localhost:9200/_cluster/health | grep -E '"status":"(green|yellow)"'
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    logging: *logging

@@ -29,7 +29,15 @@ We will be running postgres
 docker-compose up postgres -d
 ```
 
-### load-testing
+### 3. Start App
+We can run the app using ```./gradlew runApp``` command or ```./run.sh```
+You can run open telemetry tools using ```./run.sh otel``` to collect metrics, traces, logs.
+ 
+
+### 4. integration testing
+Integration tests can be run with ```./gradlew integration-test:test```
+
+### 5. load-testing
 Gatling
 
 Load test can be run using one of the following two approaches
@@ -37,9 +45,10 @@ Load test can be run using one of the following two approaches
 ```
 gradle load-testing:runTest
 IDE - com.github.starter.todo.Runner
+script - ./scripts/perf.sh
 ```
 
-### vulnerability
+### 6. vulnerability reporting
 
 Install snyk and authenticate for CLI session
 
