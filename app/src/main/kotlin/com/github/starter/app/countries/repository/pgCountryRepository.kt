@@ -21,9 +21,23 @@ class pgCountryRepository @Autowired constructor(
     override fun listItems(): Flux<Countries> {
         return client.sql(
             """
-                SELECT * FROM app.countries LIMIT 20;
+                SELECT * 
+                FROM app.countries
+                ORDER BY name;
             """.trimIndent()
-        ).map(Mappers.Country()).all()
+        ).mapProperties(Countries::class.java).all()
     }
+
+    override fun listByRegion(region: String): Flux<Countries> {
+        return client.sql(
+            """
+                SELECT * 
+                FROM app.countries 
+                WHERE lower(region) = lower($1)
+                ORDER BY name;
+            """.trimIndent()
+        ).bind("$1", region).mapProperties(Countries::class.java).all()
+    }
+
 
 }
