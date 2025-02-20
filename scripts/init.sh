@@ -10,7 +10,7 @@ fi;
 download_data_file(){
   local fragment=$1
   local path=$2
-  curl -sL -o ${CSV_DIR}/$path https://raw.githubusercontent.com/skhatri/app-data/refs/heads/main/$fragment
+  curl -sL -o ${CSV_DIR}/$path https://raw.githubusercontent.com/avikbesu/app-data/refs/heads/main/$fragment
   if [[ -f "${CSV_DIR}/$path" ]]; then
     num_lines=$(wc -l < $CSV_DIR/$path|sed s/' '//g)
     if [[ $num_lines -eq 0 ]]; then
@@ -27,6 +27,11 @@ fi;
 if [[ ! -f ${CSV_DIR}/epl-table-1992-2024.csv ]];
 then
   download_data_file epl/epl-table-1992-2024.csv epl-table-1992-2024.csv
+fi;
+
+if [[ ! -f ${CSV_DIR}/countries_data.csv ]];
+then
+  download_data_file countries/countries_data.csv countries_data.csv
 fi;
 
 download_otel(){
