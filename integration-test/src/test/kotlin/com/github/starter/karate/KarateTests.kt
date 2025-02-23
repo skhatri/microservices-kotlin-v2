@@ -1,7 +1,9 @@
 package com.github.starter.karate
 
 import com.intuit.karate.junit5.Karate
+import org.junit.jupiter.api.condition.DisabledIf
 
+@DisabledIf("com.github.starter.karate.Conditions#serverNotRunning")
 class KarateTests {
 
     @Karate.Test
