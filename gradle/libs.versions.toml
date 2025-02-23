@@ -1,0 +1,77 @@
+[versions]
+coroutines = "1.9.0"
+jupiter = "5.11.4"
+junitplatform = "1.11.4"
+testcontainers = "1.20.4"
+netty-tcnative = "2.0.69.Final"
+reactor-adapter = "3.5.2"
+snakeyaml = "2.3"
+r2dbc-postgresql = "1.0.7.RELEASE"
+spring-boot = "3.4.2"
+mounted-secrets-client = "0.2.5"
+karate-junit5 = "1.4.1"
+mockito = "5.15.2"
+
+spring-dep = "1.1.7"
+sonar = "6.0.1.5171"
+kotlin = "2.1.10"
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dep" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonar" }
+jacoco = { id = "jacoco" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+
+[libraries]
+spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
+spring-boot-starter-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket" }
+spring-boot-starter-graphql = { module = "org.springframework.boot:spring-boot-starter-graphql" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-log4j2 = { module = "org.springframework.boot:spring-boot-starter-log4j2" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "coroutines" }
+kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "coroutines" }
+reactor-adapter = { module = "io.projectreactor.addons:reactor-adapter", version.ref = "reactor-adapter" }
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
+r2dbc-postgresql = { module = "org.postgresql:r2dbc-postgresql", version.ref = "r2dbc-postgresql" }
+spring-data-r2dbc = { module = "org.springframework.data:spring-data-r2dbc", version.ref = "spring-boot" }
+mounted-secrets-client = { module = "io.github.skhatri:mounted-secrets-client", version.ref = "mounted-secrets-client" }
+netty-tcnative = { module = "io.netty:netty-tcnative-boringssl-static", version.ref = "netty-tcnative" }
+
+karate-junit5 = { module = "com.intuit.karate:karate-junit5", version.ref = "karate-junit5" }
+reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor-adapter" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+spring-boot-test = { module = "org.springframework.boot:spring-boot-test" }
+spring-graphql-test = { module = "org.springframework.graphql:spring-graphql-test" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jupiter" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "jupiter" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jupiter" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "jupiter" }
+
+junit-platform-commons = { module = "org.junit.platform:junit-platform-commons", version.ref = "junitplatform" }
+junit-platform-runner = { module = "org.junit.platform:junit-platform-runner", version.ref = "junitplatform" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitplatform" }
+junit-platform-engine = { module = "org.junit.platform:junit-platform-engine", version.ref = "junitplatform" }
+
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+test-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+
+
+[bundles]
+spring-boot = ["spring-boot-starter-webflux", "spring-boot-starter-actuator", "spring-boot-starter-graphql", "spring-boot-starter-log4j2", "spring-boot-starter-websocket", "snakeyaml"]
+kotlin-app = ["kotlin-reflect", "kotlin-stdlib-jdk8", "kotlinx-coroutines-core", "kotlinx-coroutines-reactive", "kotlinx-coroutines-reactor", "jackson-module-kotlin"]
+app = ["mounted-secrets-client", "reactor-adapter"]
+pg = ["r2dbc-postgresql", "spring-data-r2dbc"]
+test-core = ["junit-jupiter-api", "junit-jupiter-params", "junit-platform-commons", "junit-platform-runner", "testcontainers", "test-postgresql", "testcontainers-junit-jupiter",
+    "karate-junit5", "reactor-test", "mockito-core",
+    "spring-boot-test",
+    "spring-graphql-test",
+    "spring-boot-starter-test"
+]
+test-runtime = ["junit-jupiter-engine", "junit-vintage-engine", "junit-platform-launcher", "junit-platform-engine"]

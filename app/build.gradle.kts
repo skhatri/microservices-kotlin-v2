@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.4.2"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("org.sonarqube") version "6.0.1.5171"
-    id("jacoco")
-    kotlin("plugin.spring") version "2.1.10"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.jacoco)
+    alias(libs.plugins.kotlin.spring)
 }
 
 java {
@@ -17,84 +17,24 @@ configurations {
     implementation {
         resolutionStrategy.failOnVersionConflict()
     }
-}
-val coroutineVersion = project.findProperty("coroutine.version") as String? ?: "1.9.0"
-val jupiterVersion = project.findProperty("jupiter.version") as String? ?: "5.11.4"
-val junitPlatformVersion = project.findProperty("junitplatform.version") as String? ?: "1.11.4"
-val testContainersVersion = project.findProperty("testcontainers.version") as String? ?: "1.20.4"
-val serverType = project.findProperty("server.type") as String? ?: "reactor-netty"
-
-dependencies {
-    listOf(
-        "spring-boot-starter-webflux",
-        "spring-boot-starter-$serverType",
-        "spring-boot-starter",
-        "spring-boot-starter-websocket",
-        "spring-boot-starter-graphql",
-        "spring-boot-starter-actuator"
-    ).forEach { name ->
-        implementation("org.springframework.boot:${name}") {
-            exclude(module = "spring-boot-starter-logging")
-        }
-    }
-
-    if (project.ext["server.type"] == "reactor-netty") {
-        implementation("io.netty:netty-tcnative-boringssl-static:2.0.69.Final")
-    }
-
-    if (project.ext["server.type"] == "jetty") {
-        listOf("jetty-alpn-server", "jetty-alpn-conscrypt-server").forEach { name ->
-            implementation("org.eclipse.jetty:$name:9.4.57.v20241219")
-        }
-        implementation("org.eclipse.jetty.http2:http2-server:9.4.57.v20241219")
-    }
-
-    implementation("org.springframework.boot:spring-boot-starter-log4j2")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    listOf("kotlinx-coroutines-core", "kotlinx-coroutines-reactive", "kotlinx-coroutines-reactor").forEach { name ->
-        implementation("org.jetbrains.kotlinx:$name:$coroutineVersion")
-    }
-    implementation("io.projectreactor.addons:reactor-adapter:3.5.2")
-    implementation("org.yaml:snakeyaml:2.3")
-    implementation("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
-    implementation("org.springframework.data:spring-data-r2dbc:3.4.2")
-
-    implementation("io.github.skhatri:mounted-secrets-client:0.2.5")
-
-    implementation("io.micrometer:micrometer-registry-otlp")
-    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(module = "junit")
-        exclude(module = "mockito-core")
+    all {
         exclude(module = "spring-boot-starter-logging")
     }
-    testImplementation("org.springframework.graphql:spring-graphql-test")
-    testImplementation("org.springframework.boot:spring-boot-test") {
-        exclude(module="spring-boot-starter-logging")
+}
+
+
+
+dependencies {
+    implementation(libs.bundles.spring.boot)
+    implementation(libs.bundles.kotlin.app)
+    implementation(libs.bundles.app)
+    implementation(libs.bundles.pg)
+
+    if (project.ext["server.type"] == "reactor-netty") {
+        implementation(libs.netty.tcnative)
     }
-    testImplementation("com.intuit.karate:karate-junit5:1.4.1")
-
-    testImplementation("io.projectreactor:reactor-test:3.5.2")
-    testImplementation("org.mockito:mockito-core:5.15.2")
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:$jupiterVersion")
-
-    testImplementation("org.junit.platform:junit-platform-commons:$junitPlatformVersion")
-    testImplementation("org.junit.platform:junit-platform-runner:$junitPlatformVersion")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
-    testRuntimeOnly("org.junit.platform:junit-platform-engine:$junitPlatformVersion")
-
-
-    testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
-    testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
-    testImplementation("org.testcontainers:postgresql:$testContainersVersion")
-
+    testImplementation(libs.bundles.test.core)
+    testRuntimeOnly(libs.bundles.test.runtime)
 }
 
 tasks.test {
