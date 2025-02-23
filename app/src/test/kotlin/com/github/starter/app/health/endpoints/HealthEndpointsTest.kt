@@ -20,7 +20,7 @@ class HealthEndpointsTest {
     @Test
     fun `test liveness endpoint`() {
         val uri = "/liveness";
-        val webTestClient:WebTestClient = WebTestClient.bindToController(HealthEndpoints::class.java)
+        val webTestClient:WebTestClient = WebTestClient.bindToController(HealthEndpoints("app"))
             .webFilter<WebTestClient.ControllerSpec>(RequestTimingFilters.newInstance(true)).build()
         verifyResult(uri, webTestClient, Map::class.java) { m -> m.isNotEmpty()}
     }
@@ -37,7 +37,7 @@ class HealthEndpointsTest {
     @Test
     fun `test readiness endpoint`() {
         val uri = "/readiness";
-        val webTestClient = WebTestClient.bindToController(HealthEndpoints::class.java)
+        val webTestClient = WebTestClient.bindToController(HealthEndpoints("app1"))
             .webFilter<WebTestClient.ControllerSpec>(RequestTimingFilters.newInstance(false))
             .build();
         verifyResult(uri, webTestClient, Map::class.java) { m -> m.isNotEmpty() };
@@ -46,7 +46,7 @@ class HealthEndpointsTest {
     @Test
     fun `test index endpoint`() {
         val uri = "/"
-        val webTestClient = WebTestClient.bindToController(HealthEndpoints::class.java).build();
+        val webTestClient = WebTestClient.bindToController(HealthEndpoints("app")).build();
         verifyResult(uri, webTestClient, Map::class.java) { m -> m.isNotEmpty()};
     }
 
@@ -54,7 +54,7 @@ class HealthEndpointsTest {
     @Test
     fun `test non-existent endpoint`() {
         val uri = "/readiness-xyz?action=reload"
-        val webTestClient = WebTestClient.bindToController(HealthEndpoints::class.java)
+        val webTestClient = WebTestClient.bindToController(HealthEndpoints("app"))
             .webFilter<WebTestClient.ControllerSpec>(RequestTimingFilters.newInstance(true))
             .build()
         webTestClient.get().uri(uri).exchange().expectStatus().isNotFound

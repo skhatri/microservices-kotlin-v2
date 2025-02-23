@@ -3,6 +3,7 @@ package com.github.starter.modules.epl.repository
 import com.github.starter.modules.epl.model.EplMatch
 import com.github.starter.modules.epl.model.EplStanding
 import com.github.starter.app.config.JdbcClientFactory
+import com.github.starter.app.epl.model.Team
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
@@ -83,7 +84,7 @@ class PgMatchRepository @Autowired constructor(
         ).map(Mappers.eplStanding()).all()
     }
 
-    override fun allTeams(season: Int): Flux<String> {
+    override fun allTeams(season: Int, start: Int, limit: Int): Flux<Team> {
         val seasonSelector = getSeasonSelector(season)
         return client.sql(
             """
@@ -91,8 +92,10 @@ class PgMatchRepository @Autowired constructor(
                 FROM app.epl_standings
                 WHERE season $seasonSelector
                 ORDER BY team ASC
+                LIMIT $limit
+                OFFSET $start
             """.trimIndent()
-        ).map(Mappers.field("team", String::class.java, "")).all()
+        ).map(Mappers.field("team", String::class.java, "")).all().map { Team(it) }
     }
 
     companion object {

@@ -17,5 +17,8 @@ data class Container<T> @JsonCreator constructor(
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     constructor(errors: List<MessageItem>) : this(null, mapOf(), errors, listOf());
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    constructor(data: T, metadata: Map<String, Any>) : this(data, metadata, listOf(), listOf())
 }
 

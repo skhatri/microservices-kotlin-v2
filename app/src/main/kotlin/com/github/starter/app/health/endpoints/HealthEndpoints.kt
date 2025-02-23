@@ -1,19 +1,17 @@
 package com.github.starter.app.health.endpoints;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.Flux;
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.time.Duration
-import java.util.HashMap
-import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
-
-
+import java.time.format.DateTimeFormatter
 
 
 @RestController(value = "/")
-class HealthEndpoints {
+class HealthEndpoints(@Value("\${spring.application.name}") val name: String) {
 
     @GetMapping("/")
     fun index(): Mono<Map<String, Any>> {
@@ -59,6 +57,7 @@ class HealthEndpoints {
 
     private fun statusMap(): Map<String, String> {
         return java.util.Map.of<String, String>(
+            "app_name", name,
             "status", "UP",
             "server_time", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
         )

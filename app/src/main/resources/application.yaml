@@ -9,7 +9,6 @@ flags:
     h2: false
   default-jdbc-client: "${JDBC_CLIENT_NAME:default-jdbc-client-pg}"
 
-
 server.ssl:
   key-store: classpath:server.p12
   key-store-password: test123
@@ -77,3 +76,6 @@ datasource.jdbc:
       database: starter
       enabled: ${flags.use.postgres}
 
+spring:
+  application:
+    name: "microservices-kotlin-v2"

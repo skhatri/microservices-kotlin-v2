@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
+import java.util.*
 
 @Repository
 open class EntriesRepository(
@@ -15,7 +16,13 @@ open class EntriesRepository(
 ) {
     private val client: DatabaseClient = clientFactory.forName(jdbcClientName).client()
 
-    fun listEntries(): Flux<Pokemon> {
-        return client.sql("select * from app.pokemons").mapProperties(Pokemon::class.java).all()
+    fun listEntries(start: Int = 0, limit: Int = 10): Flux<Pokemon> {
+        return client.sql(
+            """select * from app.pokemons
+            |order by name asc
+            |limit $limit
+            |offset $start
+        """.trimMargin()
+        ).mapProperties(Pokemon::class.java).all()
     }
 }
