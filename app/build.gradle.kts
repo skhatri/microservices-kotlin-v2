@@ -19,6 +19,8 @@ configurations {
     }
     all {
         exclude(module = "spring-boot-starter-logging")
+        exclude(module = "logback-core")
+        exclude(module = "logback-classic")
     }
 }
 
@@ -92,8 +94,8 @@ tasks.jacocoTestCoverageVerification {
 
 tasks.test {
     extensions.configure(JacocoTaskExtension::class) {
-        destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
-        classDumpDir = file("$buildDir/jacoco/classpathdumps")
+        destinationFile = file("$projectDir/build/jacoco/jacocoTest.exec")
+        classDumpDir = file("$projectDir/build/jacoco/classpathdumps")
     }
 }
 

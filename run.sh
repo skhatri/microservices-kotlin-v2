@@ -3,7 +3,7 @@
 : "${cmd:=${1:-app}}"
 
 unittest(){
- : "${pattern:=${1:-'*Test*'}}"
+ : "${pattern:=${1:-"*Test*"}}"
  ./gradlew app:test --tests="${pattern}"
 }
 
@@ -21,6 +21,10 @@ down)
 test)
   shift 1;
   unittest $*
+  ;;
+deptree)
+  shift 1;
+  ./scripts/insight.sh ${1}
   ;;
 *)
   docker compose --profile=app up -d

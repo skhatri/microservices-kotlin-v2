@@ -9,5 +9,5 @@ fi;
 if [[ $module ]];
 then
     cwd=$(dirname $0)
-    gradle -b ${cwd}/../build.gradle.kts :${project}:dependencyInsight --dependency ${module} --configuration testCompileClasspath
+    ./gradlew -b ${cwd}/../build.gradle.kts :${project}:dependencyInsight --dependency ${module} --configuration testCompileClasspath
 fi;

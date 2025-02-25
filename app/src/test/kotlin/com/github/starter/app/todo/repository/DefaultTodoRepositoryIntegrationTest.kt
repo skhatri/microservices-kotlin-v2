@@ -8,10 +8,7 @@ import com.github.starter.app.config.ConfigItem
 import com.github.starter.app.config.JdbcClientConfig
 import com.github.starter.app.config.JdbcProperties
 import com.github.starter.core.secrets.SecretsClient
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.junit.jupiter.Container
@@ -22,6 +19,7 @@ import java.util.function.Consumer
 
 @DisplayName("Todo Repository Integration Tests")
 @Testcontainers
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DefaultTodoRepositoryIntegrationTest {
 
     private var todoRepositoryUseCases: TodoRepositoryUseCases? = null
@@ -36,12 +34,13 @@ class DefaultTodoRepositoryIntegrationTest {
         .withCopyFileToContainer(
             MountableFile.forHostPath("../scripts/containers/postgres/sql/pg.sql"),
             "/docker-entrypoint-initdb.d/test.sql"
-        ).waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+        ).waitingFor(Wait.forLogMessage("database system is ready to accept connections",1).withStartupTimeout(Duration.ofSeconds(60)))
         .withLogConsumer(Consumer { c -> print(c.toString()) })
 
     @BeforeEach
     fun setUp() {
         val randomPort = postgres.getMappedPort(5432)
+        println("port ${randomPort}")
         val defaultJdbcName = "default-jdbc-client"
         val cfg = ConfigItem().apply {
             driver = "postgresql"
@@ -105,7 +104,11 @@ class DefaultTodoRepositoryIntegrationTest {
 
     @AfterEach
     fun tearDown() {
-
         postgres.stop()
+        try {
+            Thread.sleep(10000)
+        } catch (e: Exception) {
+
+        }
     }
 }
