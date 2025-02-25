@@ -29,6 +29,11 @@ then
   download_data_file epl/epl-table-1992-2024.csv epl-table-1992-2024.csv
 fi;
 
+if [[ ! -f ${CSV_DIR}/countries_data.csv ]];
+then
+  download_data_file countries/countries_data.csv countries_data.csv
+fi;
+
 download_otel(){
   if [[ ! -d out/otel ]]; then
     mkdir -p out/otel

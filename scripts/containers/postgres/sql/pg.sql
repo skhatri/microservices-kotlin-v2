@@ -132,6 +132,15 @@ CREATE TABLE app.epl_team_match (
                                     PRIMARY KEY (season, wk, matchDate, team, opponent)
 );
 
+CREATE TABLE app.countries (
+                                name VARCHAR(50) NOT NULL,
+                                capital VARCHAR(50),
+                                population INT NOT NULL,
+                                area NUMERIC(10, 2),
+                                region VARCHAR(25) NOT NULL,
+                                PRIMARY KEY (name, region)
+);
+
 set role postgres;
 COPY app.epl_standings (season, ranking, team, played, gf, ga, gd, points)
     FROM '/tmp/data/csv/epl-table-1992-2024.csv'
@@ -140,5 +149,9 @@ COPY app.epl_standings (season, ranking, team, played, gf, ga, gd, points)
 copy app.epl_team_match (season, wk, matchDate, team, opponent, venue, result, gf, ga, points)
     FROM '/tmp/data/csv/epl-historical-1992-2024.csv'
     WITH (FORMAT csv, HEADER false, DELIMITER ',');
+
+copy app.countries (name, capital, population, area, region)
+    FROM '/tmp/data/csv/countries_data.csv'
+    WITH (FORMAT csv, HEADER true, DELIMITER ',');
 
 set role starter_owner;
