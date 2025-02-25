@@ -29,9 +29,8 @@ ALTER USER starter_user WITH PASSWORD 'starter';
 set role starter_owner;
 
 
-
 create table if not exists app.tasks(
-    id varchar(64),
+                                        id varchar(64),
     description varchar(300),
     action_by varchar(100),
     created TIMESTAMP,
@@ -131,6 +130,8 @@ CREATE TABLE app.epl_team_match (
                                     points INT NOT NULL,
                                     PRIMARY KEY (season, wk, matchDate, team, opponent)
 );
+
+
 
 set role postgres;
 COPY app.epl_standings (season, ranking, team, played, gf, ga, gd, points)

@@ -20,17 +20,18 @@ class HealthEndpointsTest {
     @Test
     fun `test liveness endpoint`() {
         val uri = "/liveness";
-        val webTestClient:WebTestClient = WebTestClient.bindToController(HealthEndpoints("app"))
+        val webTestClient: WebTestClient = WebTestClient.bindToController(HealthEndpoints("app"))
             .webFilter<WebTestClient.ControllerSpec>(RequestTimingFilters.newInstance(true)).build()
-        verifyResult(uri, webTestClient, Map::class.java) { m -> m.isNotEmpty()}
+        verifyResult(uri, webTestClient, Map::class.java) { m -> m.isNotEmpty() }
     }
 
-    private fun <T> verifyResult(uri:String, webTestClient: WebTestClient, clz:Class<T>, predicate: (T)->Boolean) {
-        val result:Mono<T> = Mono.from(webTestClient.get().uri(uri).exchange().expectStatus().isOk.returnResult(clz).responseBody);
-        MonoConsumer(result, false).drain(Consumer {res ->
+    private fun <T> verifyResult(uri: String, webTestClient: WebTestClient, clz: Class<T>, predicate: (T) -> Boolean) {
+        val result: Mono<T> =
+            Mono.from(webTestClient.get().uri(uri).exchange().expectStatus().isOk.returnResult(clz).responseBody);
+        MonoConsumer(result, false).drain(Consumer { res ->
             Assertions.assertTrue(predicate(res))
         })
-        StepVerifier.create(result)
+        StepVerifier.create(result).thenConsumeWhile { p -> true }
             .verifyComplete();
     }
 
@@ -47,7 +48,7 @@ class HealthEndpointsTest {
     fun `test index endpoint`() {
         val uri = "/"
         val webTestClient = WebTestClient.bindToController(HealthEndpoints("app")).build();
-        verifyResult(uri, webTestClient, Map::class.java) { m -> m.isNotEmpty()};
+        verifyResult(uri, webTestClient, Map::class.java) { m -> m.isNotEmpty() };
     }
 
 

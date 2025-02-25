@@ -37,6 +37,7 @@ services:
   postgres:
     profiles:
       - app
+      - db
     command: [ /bin/bash, -c, /tmp/scripts/init.sh ]
     container_name: postgres-data
     depends_on:
@@ -54,6 +55,7 @@ services:
   postgres-server:
     profiles:
       - app
+      - db
     container_name: postgres
     environment:
       - "POSTGRES_USER=${POSTGRES_USER:-postgres}"

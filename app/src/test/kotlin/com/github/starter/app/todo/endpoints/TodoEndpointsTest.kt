@@ -29,11 +29,22 @@ class TodoEndpointsTest(@org.springframework.beans.factory.annotation.Autowired 
 
     @ParameterizedTest(name = "Error Scenario - [{index}] {0} - {4} {1}")
     @MethodSource("data")
-    fun testTodosErrorService(scenarioName: String, uri: String, serviceHook: (TodoService) -> Unit, clz: Class<Any>, method: HttpMethod) {
+    fun testTodosErrorService(
+        scenarioName: String,
+        uri: String,
+        serviceHook: (TodoService) -> Unit,
+        clz: Class<Any>,
+        method: HttpMethod
+    ) {
         verifyInternalServiceErrorResponse(uri, serviceHook, clz, method);
     }
 
-    private fun <R> verifyInternalServiceErrorResponse(uri: String, serviceHook: (TodoService) -> Unit, clz: Class<R>, method: HttpMethod) {
+    private fun <R> verifyInternalServiceErrorResponse(
+        uri: String,
+        serviceHook: (TodoService) -> Unit,
+        clz: Class<R>,
+        method: HttpMethod
+    ) {
         val todoService = Mockito.mock(TodoService::class.java)
         serviceHook.invoke(todoService)
 
@@ -42,9 +53,11 @@ class TodoEndpointsTest(@org.springframework.beans.factory.annotation.Autowired 
         val globalErrorHandler = GlobalErrorHandler(errorAttributes, applicationContext, DefaultServerCodecConfigurer())
         val webTestClient = WebTestClient.bindToController(todo, globalErrorHandler).build();
 
-        val result: Mono<R> = Mono.from(webTestClient.method(method).uri(uri).exchange().expectStatus().is5xxServerError.returnResult(clz).responseBody)
-        MonoConsumer(result, false).drain()
-        StepVerifier.create(result).expectComplete().verify();
+        val result: Mono<R> = Mono.from(
+            webTestClient.method(method).uri(uri).exchange()
+                .expectStatus().is5xxServerError.returnResult(clz).responseBody
+        )
+        StepVerifier.create(result).thenConsumeWhile { true }.expectComplete().verify();
     }
 
     private fun data(): Stream<Arguments> {
@@ -53,23 +66,35 @@ class TodoEndpointsTest(@org.springframework.beans.factory.annotation.Autowired 
         return Stream.of(
             Arguments.of(
                 "Find Todos test", "/todo/123",
-                { todoService: TodoService -> Mockito.`when`(todoService.findById("123")).thenReturn(Mono.error<TodoTask>(InternalServerError())) }, Map::class.java, HttpMethod.GET
+                { todoService: TodoService ->
+                    Mockito.`when`(todoService.findById("123")).thenReturn(Mono.error<TodoTask>(InternalServerError()))
+                }, Map::class.java, HttpMethod.GET
             ),
             Arguments.of(
                 "Delete Todos id", "/todos/123",
-                { todoService: TodoService -> Mockito.`when`(todoService.delete("123")).thenReturn(Mono.error<Boolean>(InternalServerError())) }, Map::class.java, HttpMethod.DELETE
+                { todoService: TodoService ->
+                    Mockito.`when`(todoService.delete("123")).thenReturn(Mono.error<Boolean>(InternalServerError()))
+                }, Map::class.java, HttpMethod.DELETE
             ),
             Arguments.of(
                 "Update Todos", String.format("/todos/%s", id),
-                { todoService: TodoService -> Mockito.`when`(todoService.update(id, todoTask)).thenReturn(Mono.error<TodoTask>(InternalServerError())) }, Map::class.java, HttpMethod.POST
+                { todoService: TodoService ->
+                    Mockito.`when`(todoService.update(id, todoTask))
+                        .thenReturn(Mono.error<TodoTask>(InternalServerError()))
+                }, Map::class.java, HttpMethod.POST
             ),
             Arguments.of(
                 "Add Todos", "/todos/",
-                { todoService: TodoService -> Mockito.`when`(todoService.save(todoTask)).thenReturn(Mono.error<TodoTask>(InternalServerError())) }, Map::class.java, HttpMethod.POST
+                { todoService: TodoService ->
+                    Mockito.`when`(todoService.save(todoTask)).thenReturn(Mono.error<TodoTask>(InternalServerError()))
+                }, Map::class.java, HttpMethod.POST
             ),
             Arguments.of(
                 "Search Todos", "/todos/search",
-                { todoService: TodoService -> Mockito.`when`(todoService.listItems()).thenReturn(Mono.error<List<TodoTask>>(InternalServerError())) }, Map::class.java, HttpMethod.GET
+                { todoService: TodoService ->
+                    Mockito.`when`(todoService.listItems())
+                        .thenReturn(Mono.error<List<TodoTask>>(InternalServerError()))
+                }, Map::class.java, HttpMethod.GET
             )
         );
     }

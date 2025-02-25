@@ -12,8 +12,13 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.utility.MountableFile
+import java.time.Duration
+import java.util.function.Consumer
 
 @DisplayName("Todo Repository Integration Tests")
 @Testcontainers
@@ -22,35 +27,45 @@ class DefaultTodoRepositoryIntegrationTest {
     private var todoRepositoryUseCases: TodoRepositoryUseCases? = null
 
     @Container
-    val postgres: ContainerSupport = ContainerSupport("skhatri/todo-postgres:11.5")
-        .withEnv("POSTGRES_PASSWORD", "admin")
-        .withExposedPorts(5432)
+    val postgres = GenericContainer("postgres:17.0")
+        .withEnv("POSTGRES_PASSWORD", "admin").withExposedPorts(5432)
+        .withStartupAttempts(3)
+        .withCopyFileToContainer(
+            MountableFile.forHostPath("../scripts/containers/postgres/csv"), "/tmp/data/csv"
+        )
+        .withCopyFileToContainer(
+            MountableFile.forHostPath("../scripts/containers/postgres/sql/pg.sql"),
+            "/docker-entrypoint-initdb.d/test.sql"
+        ).waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(60)))
+        .withLogConsumer(Consumer { c -> print(c.toString()) })
 
     @BeforeEach
     fun setUp() {
-
-        val cfg = ConfigItem()
-
-        cfg.driver = "postgresql"
-        cfg.enabled = true
-        cfg.host = postgres.containerIpAddress
-        cfg.port = postgres.firstMappedPort
-        cfg.username = "secret::vault::postgres:-todo_admin"
-        cfg.password = "secret::vault::postgres:-password"
+        val randomPort = postgres.getMappedPort(5432)
         val defaultJdbcName = "default-jdbc-client"
-        cfg.name = defaultJdbcName
-        cfg.database = "todo"
+        val cfg = ConfigItem().apply {
+            driver = "postgresql"
+            enabled = true
+            host = "localhost"
+            port = randomPort
+            username = "secret::vault::postgres:-postgres"
+            password = "secret::vault::postgres:-admin"
+            name = defaultJdbcName
+            database = "starter"
+        }
+
         val jdbcProperties = JdbcProperties(listOf(cfg))
 
         val jdbcClientConfig = JdbcClientConfig()
         val config = jdbcClientConfig.databaseProperties(jdbcProperties)
 
-        val secretProvider = SecretProvider()
-        secretProvider.entriesLocation = "all.properties"
-        secretProvider.errorDecision = ErrorDecision.EMPTY.toString().lowercase()
-        secretProvider.isIgnoreResourceFailure = true
-        secretProvider.name = "vault"
-        secretProvider.mount = "/doesntexist"
+        val secretProvider = SecretProvider().apply {
+            entriesLocation = "all.properties"
+            errorDecision = ErrorDecision.EMPTY.toString().lowercase()
+            isIgnoreResourceFailure = true
+            name = "vault"
+            mount = "/doesntexist"
+        }
 
         val secretConfiguration = SecretConfiguration()
         secretConfiguration.setKeyErrorDecision(ErrorDecision.IDENTITY.toString().lowercase())
@@ -90,6 +105,7 @@ class DefaultTodoRepositoryIntegrationTest {
 
     @AfterEach
     fun tearDown() {
+
         postgres.stop()
     }
 }

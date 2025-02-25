@@ -1,20 +1,20 @@
 [versions]
 coroutines = "1.9.0"
-jupiter = "5.11.4"
-junitplatform = "1.11.4"
-testcontainers = "1.20.4"
+jupiter = "5.12.0"
+junitplatform = "1.12.0"
+testcontainers = "1.20.5"
 netty-tcnative = "2.0.69.Final"
 reactor-adapter = "3.5.2"
 snakeyaml = "2.3"
 r2dbc-postgresql = "1.0.7.RELEASE"
-spring-boot = "3.4.2"
+spring-boot = "3.4.3"
 mounted-secrets-client = "0.2.5"
 karate-junit5 = "1.4.1"
 mockito = "5.15.2"
 
 spring-dep = "1.1.7"
 sonar = "6.0.1.5171"
-kotlin = "2.1.10"
+kotlin = "1.9.0"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -70,8 +70,7 @@ app = ["mounted-secrets-client", "reactor-adapter"]
 pg = ["r2dbc-postgresql", "spring-data-r2dbc"]
 test-core = ["junit-jupiter-api", "junit-jupiter-params", "junit-platform-commons", "junit-platform-runner", "testcontainers", "test-postgresql", "testcontainers-junit-jupiter",
     "karate-junit5", "reactor-test", "mockito-core",
-    "spring-boot-test",
-    "spring-graphql-test",
-    "spring-boot-starter-test"
+    "spring-boot-test", "spring-boot-starter-test",
+    "spring-graphql-test"
 ]
 test-runtime = ["junit-jupiter-engine", "junit-vintage-engine", "junit-platform-launcher", "junit-platform-engine"]
