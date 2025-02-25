@@ -10,7 +10,7 @@ fi;
 download_data_file(){
   local fragment=$1
   local path=$2
-  curl -sL -o ${CSV_DIR}/$path https://raw.githubusercontent.com/avikbesu/app-data/refs/heads/main/$fragment
+  curl -sL -o ${CSV_DIR}/$path https://raw.githubusercontent.com/skhatri/app-data/refs/heads/main/$fragment
   if [[ -f "${CSV_DIR}/$path" ]]; then
     num_lines=$(wc -l < $CSV_DIR/$path|sed s/' '//g)
     if [[ $num_lines -eq 0 ]]; then
