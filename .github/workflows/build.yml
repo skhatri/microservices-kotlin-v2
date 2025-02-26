@@ -18,6 +18,9 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+      - name: Build Image
+        run: make image
+
       - name: Scan image
         uses: anchore/scan-action@v6
         with:
