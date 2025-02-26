@@ -1,0 +1,15 @@
+{
+  "extends": ["config:base"],
+  "packageRules": [
+    {
+      "matchManagers": ["gradle"],
+      "groupName": "Gradle Dependencies",
+      "automerge": false
+    }
+  ],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 5,
+  "onboarding": true,
+  "schedule": ["every 2 hours"]
+}
+
