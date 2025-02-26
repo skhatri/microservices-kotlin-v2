@@ -10,6 +10,6 @@
   "prHourlyLimit": 0,
   "prConcurrentLimit": 5,
   "onboarding": true,
-  "schedule": ["every 2 hours"]
+  "schedule": [ "* 5-9 * * *" ],
+  "timezone": "Australia/Sydney"
 }
-
