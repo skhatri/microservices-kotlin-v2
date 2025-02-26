@@ -15,10 +15,10 @@ LABEL APP_VERSION=${APP_VERSION}
 LABEL COMMIT_HASH=${COMMIT_HASH}
 
 RUN chown -R app:app /opt/app && chmod -R g+rwx /opt/app
-USER app
-COPY --chown=app:app  app/build/libs/app.jar /opt/app/app.jar
-COPY --chown=app:app out/otel/opentelemetry-javaagent.jar /opt/app/opentelemetry-javaagent.jar
-COPY --chown=app:app scripts/start-app.sh /opt/app/start-app.sh
+USER user
+COPY --chown=user:app  app/build/libs/app.jar /opt/app/app.jar
+COPY --chown=user:app out/otel/opentelemetry-javaagent.jar /opt/app/opentelemetry-javaagent.jar
+COPY --chown=user:app scripts/start-app.sh /opt/app/start-app.sh
 EXPOSE 8080
 ENV JAVA_OPTS=""
 
