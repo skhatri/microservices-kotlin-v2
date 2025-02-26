@@ -17,5 +17,20 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Scan image
+        uses: anchore/scan-action@v6
+        with:
+          image: "microservices-kotlin-v2:latest"
+          fail-build: false
+          severity-cutoff: high
+          output-format: table
+          output-file: "scan-report.txt"
+
+      - name: Show Reports
+        run: |
+          cat scan-report.txt
+        shell: bash
+
       - name: Build and push
         run: make integrationTest
