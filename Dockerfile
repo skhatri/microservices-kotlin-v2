@@ -1,4 +1,4 @@
-FROM cloudnativek8s/microservices-java21-alpine:v1.0.35
+FROM cloudnativek8s/microservices-java21-alpine-u10k:v1.0.38
 ARG APP_NAME="starter"
 ARG APP_VERSION="latest"
 ARG BUILD_DATE="unknown"
