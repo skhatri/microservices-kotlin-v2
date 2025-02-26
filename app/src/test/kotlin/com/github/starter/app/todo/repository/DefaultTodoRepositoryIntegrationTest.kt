@@ -37,7 +37,7 @@ class DefaultTodoRepositoryIntegrationTest {
                 MountableFile.forHostPath("../scripts/containers/postgres/sql/pg.sql"),
                 "/docker-entrypoint-initdb.d/test.sql"
             ).waitingFor(Wait.forLogMessage(".*database system is ready to accept connections.*\\n",1)
-                .withStartupTimeout(Duration.ofSeconds(40)))
+                .withStartupTimeout(Duration.ofSeconds(60)))
             .withLogConsumer(Consumer { c -> print(c.toString()) })
 
         @BeforeAll
