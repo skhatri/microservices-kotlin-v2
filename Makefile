@@ -12,10 +12,10 @@ init:
 
 .PHONY: build
 build: init
-	@./gradlew clean app:build -x app:test
+	@./gradlew clean app:build
 
 image: build
-	@docker build --no-cache -t microservices-kotlin-v2 -f .
+	@docker build --no-cache -t microservices-kotlin-v2 .
 
 buildCompose: build
 	@docker compose build starter

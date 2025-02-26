@@ -24,18 +24,35 @@ class DefaultTodoRepositoryIntegrationTest {
 
     private var todoRepositoryUseCases: TodoRepositoryUseCases? = null
 
-    @Container
-    val postgres = GenericContainer("postgres:17.0")
-        .withEnv("POSTGRES_PASSWORD", "admin").withExposedPorts(5432)
-        .withStartupAttempts(3)
-        .withCopyFileToContainer(
-            MountableFile.forHostPath("../scripts/containers/postgres/csv"), "/tmp/data/csv"
-        )
-        .withCopyFileToContainer(
-            MountableFile.forHostPath("../scripts/containers/postgres/sql/pg.sql"),
-            "/docker-entrypoint-initdb.d/test.sql"
-        ).waitingFor(Wait.forLogMessage("database system is ready to accept connections",1).withStartupTimeout(Duration.ofSeconds(60)))
-        .withLogConsumer(Consumer { c -> print(c.toString()) })
+    companion object {
+        @Container
+        @JvmStatic
+        val postgres = GenericContainer("postgres:17.0")
+            .withEnv("POSTGRES_PASSWORD", "admin").withExposedPorts(5432)
+            .withStartupAttempts(2)
+            .withCopyFileToContainer(
+                MountableFile.forHostPath("../scripts/containers/postgres/csv"), "/tmp/data/csv"
+            )
+            .withCopyFileToContainer(
+                MountableFile.forHostPath("../scripts/containers/postgres/sql/pg.sql"),
+                "/docker-entrypoint-initdb.d/test.sql"
+            ).waitingFor(Wait.forLogMessage(".*database system is ready to accept connections.*\\n",1)
+                .withStartupTimeout(Duration.ofSeconds(40)))
+            .withLogConsumer(Consumer { c -> print(c.toString()) })
+
+        @BeforeAll
+        @JvmStatic
+        fun setUpContainer() {
+            postgres.start()
+            println("PostgreSQL started on port ${postgres.getMappedPort(5432)}")
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun tearDownContainer() {
+            postgres.stop()
+        }
+    }
 
     @BeforeEach
     fun setUp() {
@@ -102,13 +119,5 @@ class DefaultTodoRepositoryIntegrationTest {
         todoRepositoryUseCases!!.verifyUpdateTodoTask()
     }
 
-    @AfterEach
-    fun tearDown() {
-        postgres.stop()
-        try {
-            Thread.sleep(10000)
-        } catch (e: Exception) {
 
-        }
-    }
 }

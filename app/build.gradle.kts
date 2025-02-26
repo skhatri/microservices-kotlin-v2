@@ -94,8 +94,8 @@ tasks.jacocoTestCoverageVerification {
 
 tasks.test {
     extensions.configure(JacocoTaskExtension::class) {
-        destinationFile = file("$projectDir/build/jacoco/jacocoTest.exec")
-        classDumpDir = file("$projectDir/build/jacoco/classpathdumps")
+        destinationFile = file("${projectDir}/build/jacoco/jacocoTest.exec")
+        classDumpDir = file("${projectDir}/build/jacoco/classpathdumps")
     }
 }
 

@@ -18,7 +18,7 @@ services:
       - app
     container_name: starter
     environment:
-      - "POSTGRES_USER=${POSTGRES_HOST:-postgres}"
+      - "POSTGRES_USER=${POSTGRES_USER:-postgres}"
       - "POSTGRES_HOST=postgres"
       - "OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}"
       - "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}/v1/traces"
