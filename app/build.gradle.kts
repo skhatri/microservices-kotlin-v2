@@ -24,9 +24,15 @@ configurations {
     }
 }
 
+buildscript {
+    dependencies {
+        classpath(libs.bundles.template)
+    }
+}
 
 
 dependencies {
+    implementation(libs.bundles.template)
     implementation(libs.bundles.spring.boot)
     implementation(libs.bundles.kotlin.app)
     implementation(libs.bundles.app)

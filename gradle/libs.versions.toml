@@ -14,7 +14,8 @@ mockito = "5.15.2"
 
 spring-dep = "1.1.7"
 sonar = "6.0.1.5171"
-kotlin = "1.9.0"
+kotlin = "2.1.0"
+freemarker = "2.3.34"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -63,6 +64,8 @@ testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter", ve
 test-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
 
 
+freemarker = {module = "org.freemarker:freemarker", version.ref = "freemarker"}
+
 [bundles]
 spring-boot = ["spring-boot-starter-webflux", "spring-boot-starter-actuator", "spring-boot-starter-graphql", "spring-boot-starter-log4j2", "spring-boot-starter-websocket", "snakeyaml"]
 kotlin-app = ["kotlin-reflect", "kotlin-stdlib-jdk8", "kotlinx-coroutines-core", "kotlinx-coroutines-reactive", "kotlinx-coroutines-reactor", "jackson-module-kotlin"]
@@ -74,3 +77,4 @@ test-core = ["junit-jupiter-api", "junit-jupiter-params", "junit-platform-common
     "spring-graphql-test"
 ]
 test-runtime = ["junit-jupiter-engine", "junit-vintage-engine", "junit-platform-launcher", "junit-platform-engine"]
+template = ["snakeyaml", "freemarker"]

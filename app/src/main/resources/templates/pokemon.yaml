@@ -1,0 +1,27 @@
+output: "app/src/main/kotlin/com/github/starter/app/pokemon/repository/PokemonRepository.kt"
+packageName: com.github.starter.app.pokemon.repository
+objectName: Pokemon
+resourceName: app.pokemons
+columns:
+  - name: name
+    type: String
+  - name: primary_type
+    type: String
+  - name: secondary_type
+    type: String
+  - name: base_stat
+    type: Int
+  - name: location
+    type: String
+  - name: legendary
+    type: Boolean?
+  - name: weakness
+    type: Array<String>
+  - name: height
+    type: BigDecimal
+  - name: weight
+    type: BigDecimal
+
+order:
+  - name asc
+  - primary_type desc
