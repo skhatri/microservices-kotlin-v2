@@ -10,7 +10,7 @@ r2dbc-postgresql = "1.0.7.RELEASE"
 spring-boot = "3.4.2"
 mounted-secrets-client = "0.2.5"
 karate-junit5 = "1.4.1"
-mockito = "5.15.2"
+mockito = "5.16.1"
 
 spring-dep = "1.1.7"
 sonar = "6.0.1.5171"
