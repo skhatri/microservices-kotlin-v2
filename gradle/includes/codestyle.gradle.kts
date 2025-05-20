@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.puppycrawl.tools:checkstyle:10.21.2")
+        classpath("com.puppycrawl.tools:checkstyle:10.23.1")
     }
 }
 apply(plugin = "checkstyle")

@@ -5,12 +5,12 @@ plugins {
 dependencies {
     implementation("org.scala-lang:scala-library:2.13.16")
     implementation("org.scala-lang:scala-compiler:2.13.16")
-    implementation("io.gatling:gatling-core:3.13.3")
-    implementation("io.gatling:gatling-http:3.13.3")
-    implementation("io.gatling:gatling-http-client:3.13.3")
-    implementation("io.gatling:gatling-charts:3.13.3")
-    implementation("io.gatling:gatling-app:3.13.3")
-    implementation("io.gatling.highcharts:gatling-charts-highcharts:3.13.3")
+    implementation("io.gatling:gatling-core:3.14.2")
+    implementation("io.gatling:gatling-http:3.14.2")
+    implementation("io.gatling:gatling-http-client:3.14.2")
+    implementation("io.gatling:gatling-charts:3.14.2")
+    implementation("io.gatling:gatling-app:3.14.2")
+    implementation("io.gatling.highcharts:gatling-charts-highcharts:3.14.2")
 }
 
 task("runTest", JavaExec::class) {
