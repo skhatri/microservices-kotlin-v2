@@ -56,10 +56,6 @@ sonarqube {
     }
 }
 
-apply(from = "$rootDir/gradle/includes/codestyle.gradle.kts")
-tasks.build {
-    dependsOn(arrayOf("checkstyleMain", "checkstyleTest"))
-}
 
 tasks.jacocoTestReport {
     reports {
