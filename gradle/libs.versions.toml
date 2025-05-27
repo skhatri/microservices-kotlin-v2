@@ -23,7 +23,7 @@ strikt = "0.34.1"
 
 spring-dep = "1.1.7"
 sonar = "6.2.0.5505"
-kotlin = "1.9.25"
+kotlin = "2.1.21"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
