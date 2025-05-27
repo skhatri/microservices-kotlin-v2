@@ -13,6 +13,13 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = JavaVersion.VERSION_21.toString()
+    }
+}
+
 configurations {
     implementation {
         resolutionStrategy.failOnVersionConflict()

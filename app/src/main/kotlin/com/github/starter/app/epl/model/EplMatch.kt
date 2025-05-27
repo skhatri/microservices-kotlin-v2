@@ -14,4 +14,3 @@ data class EplMatch(
     var ga: Int = 0,
     var points: Int = 0
 )
-

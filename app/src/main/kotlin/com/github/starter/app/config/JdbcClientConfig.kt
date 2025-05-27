@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component
 @Component
 @ConditionalOnProperty(name = ["datasource.jdbc.enabled"], havingValue = "true")
 open class JdbcClientConfig {
-
     @Bean
     open fun databaseProperties(jdbcProperties: JdbcProperties): Map<String, ConfigItem> {
         return jdbcProperties.ref.map { kv -> kv.name to kv }.toMap();
@@ -31,6 +30,4 @@ open class JdbcClientConfig {
             }
         }
     }
-
-
 }

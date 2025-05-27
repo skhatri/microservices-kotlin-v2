@@ -5,10 +5,10 @@ import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
 
 class MonoConsumer<T>(private val mono: Mono<T>, private val error: Boolean) {
-
     fun drain(consumer: Consumer<T>?) {
         val latch = CountDownLatch(1)
-        mono.subscribe({ res ->
+        mono.subscribe(
+            { res ->
                 consumer?.accept(res)
                 if (!error) {
                     latch.countDown();
@@ -19,7 +19,6 @@ class MonoConsumer<T>(private val mono: Mono<T>, private val error: Boolean) {
                     latch.countDown();
                 }
             })
-
         try {
             latch.await()
         } catch (ie: InterruptedException) {

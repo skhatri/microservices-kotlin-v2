@@ -13,8 +13,8 @@ import reactor.core.publisher.Mono
 @RestController
 @RequestMapping("/pokemon")
 open class EntriesEndpoint(private val entriesRepository: EntriesRepository) {
-
     @GetMapping("/list")
+
     fun listEntries(
         @RequestParam(
             name = "nextToken",
@@ -22,11 +22,9 @@ open class EntriesEndpoint(private val entriesRepository: EntriesRepository) {
         ) pageStateToken: String
     ): Mono<Container<List<Pokemon>>> {
         val (start, limit) = TokenInformation.decode(pageStateToken)
-
         return entriesRepository.listEntries(start, limit).collectList()
             .map { items ->
                 Container(items, TokenInformation.createPageMeta(items.size, start, limit))
             }
     }
-
 }

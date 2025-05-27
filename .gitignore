@@ -5,4 +5,8 @@ out
 *.iml
 *.iws
 *.ipr
+<<<<<<< HEAD
 
+=======
+.vscode
+>>>>>>> add-tests-and-improvements

@@ -1,7 +1,5 @@
 @file:JvmName("Conditions")
-
 package com.github.starter.karate;
-
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -10,6 +8,7 @@ import java.net.http.HttpResponse
 class Conditions {
     companion object {
         @JvmStatic
+
         fun ignoreMock(): Boolean = checkEnv("NO_WIREMOCK")
 
         private fun checkEnv(envName: String): Boolean {
@@ -17,9 +16,10 @@ class Conditions {
         }
 
         @JvmStatic
-        fun ignoreBoot(): Boolean = checkEnv("NO_BOOT")
 
+        fun ignoreBoot(): Boolean = checkEnv("NO_BOOT")
         @JvmStatic
+
         fun serverNotRunning(): Boolean {
             return try {
                 val client = HttpClient.newHttpClient()

@@ -26,11 +26,12 @@ import java.util.function.Predicate
 import java.util.stream.Stream
 
 @DisplayName("Global Error Handler Tests")
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GlobalErrorHandlerTest {
-
     @ParameterizedTest(name = "Test Routing Function [{index}] {argumentsWithNames}")
     @MethodSource("data")
+
     fun testRoutingFunction(err: Throwable, expectedStatusCode: Int) {
         val applicationContext = Mockito.mock(ApplicationContext::class.java);
         Mockito.`when`(applicationContext.classLoader).thenReturn(javaClass.classLoader);
@@ -38,17 +39,15 @@ class GlobalErrorHandlerTest {
         val attributes = CustomErrorAttributes();
         val errorHandler = GlobalErrorHandler(attributes, applicationContext, codecConfigurer);
         errorHandler.afterPropertiesSet();
-
         val request = createErrorServerRequest(err);
-
-        val serverResponse: Mono<ServerResponse> = errorHandler.getRoutingFunction(attributes).route(request).flatMap({ fn -> fn.handle(request) });
+        val serverResponse: Mono<ServerResponse> =
+            errorHandler.getRoutingFunction(attributes).route(request).flatMap({ fn -> fn.handle(request) });
         val latch = CountDownLatch(1);
         serverResponse.subscribe(Consumer { res ->
             Assertions.assertEquals(expectedStatusCode, res.rawStatusCode());
             latch.countDown();
         })
         latch.await();
-
         StepVerifier.create(serverResponse)
             .thenConsumeWhile(Predicate { sr -> sr.statusCode().isError })
             .verifyComplete();
@@ -67,7 +66,6 @@ class GlobalErrorHandlerTest {
             .attribute(DefaultErrorAttributes::class.java.name + ".ERROR", throwable)
             .build();
     }
-
 
     private fun data(): Stream<Arguments> {
         return Stream.of(

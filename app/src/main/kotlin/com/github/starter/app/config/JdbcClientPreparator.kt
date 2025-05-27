@@ -5,25 +5,26 @@ import com.github.starter.core.exception.ConfigurationException
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactoryOptions
 
-class JdbcClientPreparator(private val configItemMap: Map<String, ConfigItem>, private val secretsClient: SecretsClient) {
-
+class JdbcClientPreparator(
+    private val configItemMap: Map<String, ConfigItem>,
+    private val secretsClient: SecretsClient
+) {
     fun configure(setupHook: (ConfigItem, JdbcClient) -> Unit): Map<String, JdbcClient> {
-
         val clients: Map<String, JdbcClient> = this.configItemMap
             .filter { kv -> kv.value.enabled }
             .map { kv ->
                 val configItem = kv.value
                 val options = ConnectionFactoryOptions.builder()
                 options.option(ConnectionFactoryOptions.DRIVER, configItem.driver)
-
                 configItem.database?.let { db -> options.option(ConnectionFactoryOptions.DATABASE, db) }
-                configItem.host?.let{host -> options.option(ConnectionFactoryOptions.HOST, host)}
-                configItem.port?.let{port -> options.option(ConnectionFactoryOptions.PORT, port)}
+                configItem.host?.let { host -> options.option(ConnectionFactoryOptions.HOST, host) }
+                configItem.port?.let { port -> options.option(ConnectionFactoryOptions.PORT, port) }
+
                 val resolvedPass = secretsClient.resolve(configItem.password).joinToString("")
                 options.option(ConnectionFactoryOptions.PASSWORD, resolvedPass)
                 val resolvedUser = secretsClient.resolve(configItem.username).joinToString("")
                 options.option(ConnectionFactoryOptions.USER, resolvedUser)
-                configItem.protocol?.let { proto -> options.option(ConnectionFactoryOptions.PROTOCOL, proto)}
+                configItem.protocol?.let { proto -> options.option(ConnectionFactoryOptions.PROTOCOL, proto) }
 
                 val connFactory = ConnectionFactories.get(options.build())
                 val jdbcClient = JdbcClient(connFactory)

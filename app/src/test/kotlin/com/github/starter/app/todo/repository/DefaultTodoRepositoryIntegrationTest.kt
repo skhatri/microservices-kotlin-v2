@@ -9,6 +9,7 @@ import com.github.starter.app.config.JdbcClientConfig
 import com.github.starter.app.config.JdbcProperties
 import com.github.starter.core.secrets.SecretsClient
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.junit.jupiter.Container
@@ -18,10 +19,12 @@ import java.time.Duration
 import java.util.function.Consumer
 
 @DisplayName("Todo Repository Integration Tests")
-@Testcontainers
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class DefaultTodoRepositoryIntegrationTest {
 
+@Testcontainers
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@EnabledIfSystemProperty(named = "run.integration.tests", matches = "true")
+class DefaultTodoRepositoryIntegrationTest {
     private var todoRepositoryUseCases: TodoRepositoryUseCases? = null
 
     companion object {
@@ -36,12 +39,15 @@ class DefaultTodoRepositoryIntegrationTest {
             .withCopyFileToContainer(
                 MountableFile.forHostPath("../scripts/containers/postgres/sql/pg.sql"),
                 "/docker-entrypoint-initdb.d/test.sql"
-            ).waitingFor(Wait.forLogMessage(".*database system is ready to accept connections.*\\n",1)
-                .withStartupTimeout(Duration.ofSeconds(60)))
+            ).waitingFor(
+                Wait.forLogMessage(".*database system is ready to accept connections.*\\n", 1)
+                    .withStartupTimeout(Duration.ofSeconds(60))
+            )
             .withLogConsumer(Consumer { c -> print(c.toString()) })
 
         @BeforeAll
         @JvmStatic
+
         fun setUpContainer() {
             postgres.start()
             println("PostgreSQL started on port ${postgres.getMappedPort(5432)}")
@@ -49,12 +55,14 @@ class DefaultTodoRepositoryIntegrationTest {
 
         @AfterAll
         @JvmStatic
+
         fun tearDownContainer() {
             postgres.stop()
         }
     }
 
     @BeforeEach
+
     fun setUp() {
         val randomPort = postgres.getMappedPort(5432)
         println("port ${randomPort}")
@@ -71,10 +79,8 @@ class DefaultTodoRepositoryIntegrationTest {
         }
 
         val jdbcProperties = JdbcProperties(listOf(cfg))
-
         val jdbcClientConfig = JdbcClientConfig()
         val config = jdbcClientConfig.databaseProperties(jdbcProperties)
-
         val secretProvider = SecretProvider().apply {
             entriesLocation = "all.properties"
             errorDecision = ErrorDecision.EMPTY.toString().lowercase()
@@ -89,35 +95,38 @@ class DefaultTodoRepositoryIntegrationTest {
         val mountedSecretsResolver = MountedSecretsFactory(secretConfiguration).create()
         val secretsClient = SecretsClient(mountedSecretsResolver)
         val factory = jdbcClientConfig.dataSources(config, secretsClient)
-
         this.todoRepositoryUseCases = TodoRepositoryUseCases(DefaultTodoRepository(factory, defaultJdbcName))
     }
 
     @DisplayName("list todo")
+
     @Test
+
     fun testListTodo() {
         todoRepositoryUseCases!!.testListTodoTasks()
     }
 
     @DisplayName("add todo")
+
     @Test
+
     fun testAddTodoTask() {
         todoRepositoryUseCases!!.verifyAddTodoTask()
     }
 
-
     @DisplayName("delete todo")
+
     @Test
+
     fun testDeleteTodoTask() {
         todoRepositoryUseCases!!.verifyDeleteTodoTask()
     }
 
-
     @DisplayName("update todo")
+
     @Test
+
     fun testUpdateTodoTask() {
         todoRepositoryUseCases!!.verifyUpdateTodoTask()
     }
-
-
 }
