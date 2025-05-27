@@ -39,7 +39,7 @@ object Mappers {
         }
     }
 
-    fun <T> field(key: String, cls: Class<T>): Function<Readable, T> {
+    fun <T> field(key: String, cls: Class<T>): Function<Readable, T?> {
         return Function { kv -> kv.get(key, cls) }
     }
 

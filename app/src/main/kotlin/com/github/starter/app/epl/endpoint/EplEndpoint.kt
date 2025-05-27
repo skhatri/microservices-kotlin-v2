@@ -14,18 +14,20 @@ import reactor.core.publisher.Mono
 @RestController
 @RequestMapping("epl")
 class EplEndpoint(private val matchRepository: MatchRepository) {
-
     @GetMapping("/biggest-margin")
+
     fun biggestMargin(@Argument("season") @RequestParam("season", defaultValue = "-1") season: Int): Flux<EplMatch> {
         return matchRepository.biggestMargin(season)
     }
 
     @GetMapping("/most-goals")
+
     fun mostGoals(@Argument("season") @RequestParam("season", defaultValue = "-1") season: Int): Flux<EplMatch> {
         return matchRepository.mostGoalsScored(season)
     }
 
     @GetMapping("/season-performance")
+
     fun seasonPerformance(
         @Argument("team") @RequestParam("team") team: String,
         @Argument("season") @RequestParam("season", defaultValue = "-1") season: Int
@@ -34,16 +36,19 @@ class EplEndpoint(private val matchRepository: MatchRepository) {
     }
 
     @GetMapping("/season-table")
+
     fun seasonTable(@Argument("season") @RequestParam("season") season: Int): Flux<EplStanding> {
         return matchRepository.seasonTable(season)
     }
 
     @GetMapping("/winners")
+
     fun winner(@Argument("season") @RequestParam("season", defaultValue = "-1") season: Int): Flux<EplStanding> {
         return matchRepository.winner(season)
     }
 
     @GetMapping("/all-teams")
+
     fun allTeams(
         @Argument("season") @RequestParam("season", defaultValue = "-1") season: Int,
         @RequestParam(
@@ -57,5 +62,4 @@ class EplEndpoint(private val matchRepository: MatchRepository) {
                 Container(items, TokenInformation.createPageMeta(items.size, start, limit))
             }
     }
-
 }

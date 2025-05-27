@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 open class SecretsConfig {
-
     @ConditionalOnProperty(name = ["secrets.enabled"], havingValue = "true", matchIfMissing = false)
     @Bean
     open fun createSecretClient(secretsProperties: SecretsProperties): SecretsClient {

@@ -21,111 +21,157 @@ import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
 class EplEndpointTest {
-
     @Mock
     private lateinit var matchRepository: MatchRepository
-
     private lateinit var eplEndpoint: EplEndpoint
 
     @BeforeEach
+
     fun setUp() {
         eplEndpoint = EplEndpoint(matchRepository)
     }
 
     @Test
+
     fun `biggestMargin should return flux of EplMatch`() {
         val season = 2022
-        val matches = Flux.just(EplMatch(season = 2022, wk = 1, matchDate = LocalDate.now(), team = "Team A", opponent = "Team B", venue = "Stadium A", result = "W", gf = 5, ga = 0, points = 3))
+        val matches = Flux.just(
+            EplMatch(
+                season = 2022,
+                wk = 1,
+                matchDate = LocalDate.now(),
+                team = "Team A",
+                opponent = "Team B",
+                venue = "Stadium A",
+                result = "W",
+                gf = 5,
+                ga = 0,
+                points = 3
+            )
+        )
         `when`(matchRepository.biggestMargin(season)).thenReturn(matches)
-
         val result = eplEndpoint.biggestMargin(season)
-
         assertNotNull(result)
         assertEquals(matches, result)
     }
 
     @Test
+
     fun `mostGoals should return flux of EplMatch`() {
         val season = 2022
-        val matches = Flux.just(EplMatch(season = 2022, wk = 1, matchDate = LocalDate.now(), team = "Team A", opponent = "Team B", venue = "Stadium A", result = "W", gf = 5, ga = 4, points = 3))
+        val matches = Flux.just(
+            EplMatch(
+                season = 2022,
+                wk = 1,
+                matchDate = LocalDate.now(),
+                team = "Team A",
+                opponent = "Team B",
+                venue = "Stadium A",
+                result = "W",
+                gf = 5,
+                ga = 4,
+                points = 3
+            )
+        )
         `when`(matchRepository.mostGoalsScored(season)).thenReturn(matches)
-
         val result = eplEndpoint.mostGoals(season)
-
         assertNotNull(result)
         assertEquals(matches, result)
     }
 
     @Test
+
     fun `seasonPerformance should return flux of EplStanding`() {
         val team = "Team A"
         val season = 2022
-        val standings = Flux.just(EplStanding(season = 2022, ranking = 1, team = "Team A", played = 10, gf = 17, ga = 10, gd = 7, points = 17))
+        val standings = Flux.just(
+            EplStanding(
+                season = 2022,
+                ranking = 1,
+                team = "Team A",
+                played = 10,
+                gf = 17,
+                ga = 10,
+                gd = 7,
+                points = 17
+            )
+        )
         `when`(matchRepository.seasonPerformance(team, season)).thenReturn(standings)
-
         val result = eplEndpoint.seasonPerformance(team, season)
-
         assertNotNull(result)
         assertEquals(standings, result)
     }
 
     @Test
+
     fun `seasonTable should return flux of EplStanding`() {
         val season = 2022
-        val standings = Flux.just(EplStanding(season = 2022, ranking = 1, team = "Team A", played = 10, gf = 17, ga = 10, gd = 7, points = 17))
+        val standings = Flux.just(
+            EplStanding(
+                season = 2022,
+                ranking = 1,
+                team = "Team A",
+                played = 10,
+                gf = 17,
+                ga = 10,
+                gd = 7,
+                points = 17
+            )
+        )
         `when`(matchRepository.seasonTable(season)).thenReturn(standings)
-
         val result = eplEndpoint.seasonTable(season)
-
         assertNotNull(result)
         assertEquals(standings, result)
     }
 
     @Test
+
     fun `winner should return flux of EplStanding`() {
         val season = 2022
-        val standings = Flux.just(EplStanding(season = 2022, ranking = 1, team = "Team A", played = 10, gf = 17, ga = 10, gd = 7, points = 17))
+        val standings = Flux.just(
+            EplStanding(
+                season = 2022,
+                ranking = 1,
+                team = "Team A",
+                played = 10,
+                gf = 17,
+                ga = 10,
+                gd = 7,
+                points = 17
+            )
+        )
         `when`(matchRepository.winner(season)).thenReturn(standings)
-
         val result = eplEndpoint.winner(season)
-
         assertNotNull(result)
         assertEquals(standings, result)
     }
 
     @Test
+
     fun `allTeams should return mono of Container of Team`() {
         val season = 2022
         val pageStateToken = ""
-        // Scenario: items.size (1) < limit (10), so no nextToken in metadata
         val teams = listOf(Team("Team A"))
         `when`(matchRepository.allTeams(season, 0, 10)).thenReturn(Flux.fromIterable(teams))
-
         val result = eplEndpoint.allTeams(season, pageStateToken)
         val containerResult = result.block()
-
         assertNotNull(containerResult)
         assertEquals(teams, containerResult?.data)
-        // Based on TokenInformation.createPageMeta, metadata is empty if items.size != limit
         assertEquals(emptyMap<String, Any>(), containerResult?.metadata)
     }
 
     @Test
+
     fun `allTeams with pageStateToken should return mono of Container of Team`() {
         val season = 2022
-        // This token decodes to: start = 10, limit = 10. (Base64 of "10:10")
-        val pageStateToken = "MTA6MTA=" 
-        // Scenario: items.size (10) == limit (10), so nextToken should be in metadata
+        val pageStateToken = "MTA6MTA="
         val teams = List(10) { Team("Team B $it") }
-         `when`(matchRepository.allTeams(season, 10, 10)).thenReturn(Flux.fromIterable(teams))
-
+        `when`(matchRepository.allTeams(season, 10, 10)).thenReturn(Flux.fromIterable(teams))
         val result = eplEndpoint.allTeams(season, pageStateToken)
         val containerResult = result.block()
-
         assertNotNull(containerResult)
         assertEquals(teams, containerResult?.data)
-        // Based on TokenInformation.createPageMeta, metadata contains only nextToken if items.size == limit
         assertNotNull(containerResult?.metadata?.get("nextToken"))
-        assertEquals(1, containerResult?.metadata?.size) // Ensure only nextToken is present
+        assertEquals(1, containerResult?.metadata?.size)
     }
 }

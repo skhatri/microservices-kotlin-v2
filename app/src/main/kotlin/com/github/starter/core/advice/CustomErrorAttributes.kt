@@ -17,7 +17,6 @@ class CustomErrorAttributes : DefaultErrorAttributes() {
         val exception = getError(request);
         val builder = MessageItem.Builder();
         builder.withDetailItem("path", request.exchange().request.path.toString());
-
         if (exception is ApiException) {
             errorMap[STATUS_KEY] = exception.status;
             builder.withDetailItem(STATUS_KEY, exception.status)
@@ -26,7 +25,8 @@ class CustomErrorAttributes : DefaultErrorAttributes() {
             val defaultStatusCode = HttpStatus.INTERNAL_SERVER_ERROR.value()
             errorMap[STATUS_KEY] = defaultStatusCode;
             val ex = exception.cause ?: exception
-            builder.withDetailItem(STATUS_KEY, defaultStatusCode).withCode(ex::class.java.simpleName).withMessage(ex.message?:"$ex");
+            builder.withDetailItem(STATUS_KEY, defaultStatusCode).withCode(ex::class.java.simpleName)
+                .withMessage(ex.message ?: "$ex");
         }
         errorMap["error"] = builder.build();
         return errorMap;

@@ -7,9 +7,14 @@ import reactor.core.publisher.Flux
 
 interface MatchRepository {
     fun biggestMargin(season: Int): Flux<EplMatch>
+
     fun mostGoalsScored(season: Int): Flux<EplMatch>
+
     fun seasonPerformance(team: String, season: Int): Flux<EplStanding>
+
     fun seasonTable(season: Int): Flux<EplStanding>
+
     fun winner(season: Int): Flux<EplStanding>
-    fun allTeams(season: Int,start:Int,limit:Int): Flux<Team>
+
+    fun allTeams(season: Int, start: Int, limit: Int): Flux<Team>
 }

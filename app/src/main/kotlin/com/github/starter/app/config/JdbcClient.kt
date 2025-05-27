@@ -6,7 +6,6 @@ import org.springframework.r2dbc.core.DatabaseClient
 import reactor.core.publisher.Mono;
 
 class JdbcClient(private val connectionFactory: ConnectionFactory) {
-
     fun create(): Mono<Connection> {
         return Mono.from(connectionFactory.create());
     }

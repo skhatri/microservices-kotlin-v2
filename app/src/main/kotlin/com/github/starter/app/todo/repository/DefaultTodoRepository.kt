@@ -17,7 +17,6 @@ open class DefaultTodoRepository @Autowired constructor(
     clientFactory: JdbcClientFactory,
     @Value("\${flags.default-jdbc-client}") jdbcClientName: String
 ) : TodoRepository {
-
     private val databaseClient: DatabaseClient = clientFactory.forName(jdbcClientName).client()
 
     override fun listItems(): Mono<List<TodoTask>> {
@@ -27,6 +26,7 @@ open class DefaultTodoRepository @Autowired constructor(
     }
 
     @Override
+
     override fun findById(id: String): Mono<TodoTask> {
         return databaseClient
             .sql("select * from app.tasks where id= $1").bind("$1", id)
@@ -70,6 +70,7 @@ open class DefaultTodoRepository @Autowired constructor(
     }
 
     @Override
+
     override fun update(todoTask: TodoTask): Mono<TodoTask> {
         val updatedTime: LocalDateTime = LocalDateTime.now();
         return databaseClient.sql("update app.tasks set description=$1, action_by=$2, status=$3, updated=$4 where id=$5")
@@ -102,6 +103,7 @@ open class DefaultTodoRepository @Autowired constructor(
     }
 
     @Override
+
     override fun delete(id: String): Mono<Boolean> {
         return databaseClient.sql("delete from app.tasks where id = $1")
             .bind("$1", id).fetch().rowsUpdated()

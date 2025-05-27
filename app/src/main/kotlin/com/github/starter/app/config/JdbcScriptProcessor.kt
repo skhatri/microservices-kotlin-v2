@@ -21,7 +21,6 @@ import kotlin.Unit
 import kotlin.streams.toList
 
 class JdbcScriptProcessor {
-
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(JdbcScriptProcessor::class.java);
     }
@@ -29,7 +28,6 @@ class JdbcScriptProcessor {
     fun process(loadResource: String, conn: Connection): Unit {
         val files: List<Resource> = loadFiles(loadResource);
         files.forEach { f -> LOGGER.info("sql file {}", f.filename) };
-
         val scripts: List<ExecutionScript> = files.map { resourceFile ->
             val statements = tokenise(resourceFile);
             ExecutionScript(resourceFile.filename!!, statements)
@@ -57,7 +55,7 @@ class JdbcScriptProcessor {
             }
             return items;
         } catch (ex: Exception) {
-            throw  ConfigurationException(String.format("error tokenising %s", sqlFile.filename), ex);
+            throw ConfigurationException(String.format("error tokenising %s", sqlFile.filename), ex);
         }
     }
 
@@ -76,7 +74,7 @@ class JdbcScriptProcessor {
             return resourceList.filter { p -> scriptPattern.matcher(p.filename).matches() }
                 .sortedWith(getResourceComparator(scriptPattern)).toList();
         } catch (exp: Exception) {
-            throw  ConfigurationException("could not load initialise scripts", exp);
+            throw ConfigurationException("could not load initialise scripts", exp);
         }
     }
 

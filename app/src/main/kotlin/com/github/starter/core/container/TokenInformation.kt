@@ -17,7 +17,6 @@ class TokenInformation {
                 limit = tokenData.get(1).toInt()
             }
             return Pair(start, limit)
-
         }
 
         fun createPageMeta(recordCount: Int, start: Int, limit: Int): Map<String, Any> {

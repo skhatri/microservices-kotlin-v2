@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono
 @ConditionalOnProperty(name = ["flags.log.requests"], havingValue = "true", matchIfMissing = true)
 @Component
 class RequestTimingFilter(@Value("\${flags.log.parameters:false}") val logParameters: Boolean) : WebFilter {
-
     companion object {
         val LOGGER: Logger = LoggerFactory.getLogger(RequestTimingFilter::class.java)
     }
@@ -25,7 +24,7 @@ class RequestTimingFilter(@Value("\${flags.log.parameters:false}") val logParame
         if (this.logParameters) {
             val pairs = exchange.request.queryParams.toSingleValueMap()
                 .toList().joinToString(", ") { em -> String.format("%s=%s", em.first, em.second) }
-            if(pairs.isNotEmpty()) {
+            if (pairs.isNotEmpty()) {
                 params.append(", ")
             }
             params.append(pairs)
@@ -34,10 +33,14 @@ class RequestTimingFilter(@Value("\${flags.log.parameters:false}") val logParame
             .doOnSuccess {
                 val endTime = System.currentTimeMillis()
                 if (LOGGER.isInfoEnabled) {
-                    LOGGER.info("tag={}, uri=\"{}\", time={}, unit=ms{}", "request-timing", path, (endTime - start), params)
+                    LOGGER.info(
+                        "tag={}, uri=\"{}\", time={}, unit=ms{}",
+                        "request-timing",
+                        path,
+                        (endTime - start),
+                        params
+                    )
                 }
             }
     }
-
-
 }

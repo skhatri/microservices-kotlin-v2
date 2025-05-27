@@ -9,5 +9,4 @@ class RequestTimingFilters {
             return RequestTimingFilter(log);
         }
     }
-
 }

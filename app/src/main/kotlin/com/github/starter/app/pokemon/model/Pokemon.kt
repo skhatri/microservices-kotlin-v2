@@ -7,7 +7,6 @@ data class Pokemon(
     val primaryType: String, val secondaryType: String?, val location: String, val legendary: Boolean?,
     val weakness: Array<String>, val height: BigDecimal, val weight: BigDecimal
 ) {
-
     companion object {
         fun fromMap(kv: Map<String, Any?>): Pokemon {
             return Pokemon(
@@ -16,7 +15,7 @@ data class Pokemon(
                 secondaryType = kv["secondary_type"] as String?,
                 location = kv["location"] as String,
                 legendary = kv["legendary"] as Boolean?,
-                weakness =kv["weakness"] as Array<String>,
+                weakness = (kv["weakness"] as? Array<*>)?.filterIsInstance<String>()?.toTypedArray() ?: emptyArray(),
                 height = kv["height"] as BigDecimal,
                 weight = kv["weight"] as BigDecimal
             )
@@ -26,9 +25,7 @@ data class Pokemon(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as Pokemon
-
         if (name != other.name) return false
         if (baseStat != other.baseStat) return false
         if (primaryType != other.primaryType) return false
@@ -38,7 +35,6 @@ data class Pokemon(
         if (!weakness.contentEquals(other.weakness)) return false
         if (height != other.height) return false
         if (weight != other.weight) return false
-
         return true
     }
 

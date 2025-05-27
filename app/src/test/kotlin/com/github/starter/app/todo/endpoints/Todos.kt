@@ -1,33 +1,46 @@
-package com.github.starter.app.todo.endpoints;
+package com.github.starter.app.todo.endpoints
 
-import com.github.starter.app.todo.model.TodoTask;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*
+import com.github.starter.app.todo.model.TodoTask
+import java.time.LocalDate
+import java.time.LocalDateTime
 
-class Todos {
-    private constructor() {
-    }
+object Todos {
+    fun createOneForToday(): TodoTask = TodoTask(
+        id = "test-todo-${System.currentTimeMillis()}",
+        description = "Todo task for ${LocalDate.now()}",
+        actionBy = "test-user",
+        created = LocalDateTime.now(),
+        status = "PENDING",
+        updated = null
+    )
 
-    companion object {
-        fun createOne(id: String, dateTime: LocalDateTime): TodoTask {
-            return TodoTask(id, "Todo Task 1", "user",
-                dateTime, "NEW", dateTime);
+    fun create(
+        id: String = "test-todo-${System.currentTimeMillis()}",
+        description: String = "Test todo task",
+        actionBy: String = "test-user",
+        status: String = "PENDING",
+        created: LocalDateTime = LocalDateTime.now(),
+        updated: LocalDateTime? = null
+    ): TodoTask = TodoTask(
+        id = id,
+        description = description,
+        actionBy = actionBy,
+        created = created,
+        status = status,
+        updated = updated
+    )
+
+    fun createList(count: Int = 3): List<TodoTask> =
+        (1..count).map { index ->
+            create(
+                id = "test-todo-$index",
+                description = "Test todo task $index",
+                actionBy = "test-user-$index"
+            )
         }
 
-        fun createOne(dateTime: LocalDateTime): TodoTask {
-            return TodoTask(UUID.randomUUID().toString(), "Todo Task 1", "user",
-                dateTime, "NEW", dateTime);
-        }
-
-        fun createOneForToday(): TodoTask {
-            return createOneForDate(LocalDate.now());
-        }
-
-        fun createOneForDate(date: LocalDate): TodoTask {
-            return createOne(date.atStartOfDay());
-        }
-    }
-
-
+    fun createCompleted(): TodoTask = create(
+        status = "COMPLETED",
+        updated = LocalDateTime.now()
+    )
 }

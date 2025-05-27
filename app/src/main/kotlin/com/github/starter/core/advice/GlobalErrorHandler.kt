@@ -32,7 +32,6 @@ open class GlobalErrorHandler @Autowired constructor(
     public override fun getRoutingFunction(errorAttributes: ErrorAttributes): RouterFunction<ServerResponse> {
         return RouterFunctions.route(RequestPredicates.all(), HandlerFunction<ServerResponse> { request ->
             val error = getErrorAttributes(request, ErrorAttributeOptions.defaults());
-
             val statusCode = Integer.parseInt((error["status"] ?: "500").toString());
             val messageItem = MessageItem::class.java.cast(error["error"]);
             val container = Container<List<MessageItem>>(listOf(messageItem));
@@ -40,6 +39,4 @@ open class GlobalErrorHandler @Autowired constructor(
                 .bodyValue(container);
         })
     }
-
-
 }

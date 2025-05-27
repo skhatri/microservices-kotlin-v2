@@ -1,0 +1,144 @@
+package com.github.starter.integration
+
+import com.github.starter.Application
+import com.github.starter.app.todo.model.TodoTask
+import com.github.starter.core.container.Container
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
+import java.time.LocalDateTime
+import java.util.*
+
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = [Application::class]
+)
+@Testcontainers
+@ActiveProfiles("test")
+@EnabledIfSystemProperty(named = "run.integration.tests", matches = "true")
+class TodoApiIntegrationTest {
+
+    companion object {
+        @Container
+        val postgres = PostgreSQLContainer<Nothing>("postgres:17.0").apply {
+            withDatabaseName("testdb")
+            withUsername("postgres")
+            withPassword("postgres")
+        }
+
+        @JvmStatic
+        @DynamicPropertySource
+        fun properties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.r2dbc.url") { "r2dbc:postgresql://${postgres.host}:${postgres.firstMappedPort}/${postgres.databaseName}" }
+            registry.add("spring.r2dbc.username", postgres::getUsername)
+            registry.add("spring.r2dbc.password", postgres::getPassword)
+        }
+    }
+
+    @LocalServerPort
+    private var port = 0
+
+    @Autowired
+    private lateinit var restTemplate: TestRestTemplate
+
+    @Test
+    fun `should create and retrieve todo tasks`() {
+        // Given
+        val baseUrl = "http://localhost:$port/todo"
+        val todoId = UUID.randomUUID().toString()
+        val newTask = TodoTask(
+            id = todoId,
+            description = "Integration Test Task",
+            actionBy = "Tester",
+            created = LocalDateTime.now(),
+            status = "PENDING",
+            updated = null
+        )
+
+        // When - Create a new task
+        val createResponse = restTemplate.exchange(
+            "$baseUrl/",
+            HttpMethod.POST,
+            HttpEntity(newTask),
+            object : ParameterizedTypeReference<Container<TodoTask>>() {}
+        )
+
+        // Then - Create was successful
+        assert(createResponse.statusCode == HttpStatus.OK)
+        assert(createResponse.body?.data?.id == todoId)
+        assert(createResponse.body?.data?.description == "Integration Test Task")
+
+        // When - Retrieve the task by ID
+        val getResponse = restTemplate.exchange(
+            "$baseUrl/$todoId",
+            HttpMethod.GET,
+            null,
+            object : ParameterizedTypeReference<Container<TodoTask>>() {}
+        )
+
+        // Then - Retrieval was successful
+        assert(getResponse.statusCode == HttpStatus.OK)
+        assert(getResponse.body?.data?.id == todoId)
+        assert(getResponse.body?.data?.description == "Integration Test Task")
+        assert(getResponse.body?.data?.status == "PENDING")
+
+        // When - Update the task
+        val updatedTask = TodoTask(
+            id = todoId,
+            description = "Updated Integration Test Task",
+            actionBy = "Tester",
+            created = LocalDateTime.now(),
+            status = "COMPLETED",
+            updated = LocalDateTime.now()
+        )
+
+        val updateResponse = restTemplate.exchange(
+            "$baseUrl/$todoId",
+            HttpMethod.POST,
+            HttpEntity(updatedTask),
+            object : ParameterizedTypeReference<Container<TodoTask>>() {}
+        )
+
+        // Then - Update was successful
+        assert(updateResponse.statusCode == HttpStatus.OK)
+        assert(updateResponse.body?.data?.id == todoId)
+        assert(updateResponse.body?.data?.description == "Updated Integration Test Task")
+        assert(updateResponse.body?.data?.status == "COMPLETED")
+
+        // When - Delete the task
+        val deleteResponse = restTemplate.exchange(
+            "$baseUrl/$todoId",
+            HttpMethod.DELETE,
+            null,
+            object : ParameterizedTypeReference<Container<Map<String, Boolean>>>() {}
+        )
+
+        // Then - Delete was successful
+        assert(deleteResponse.statusCode == HttpStatus.OK)
+        assert(deleteResponse.body?.data?.get("result") == true)
+
+        // When - Try to retrieve the deleted task
+        val getDeletedResponse = restTemplate.exchange(
+            "$baseUrl/$todoId",
+            HttpMethod.GET,
+            null,
+            object : ParameterizedTypeReference<Container<TodoTask>>() {}
+        )
+
+        // Then - Task should not be found
+        assert(getDeletedResponse.statusCode == HttpStatus.NOT_FOUND || getDeletedResponse.body?.data == null)
+    }
+} 
