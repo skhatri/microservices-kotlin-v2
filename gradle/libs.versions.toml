@@ -16,7 +16,7 @@ mockk = "1.13.12"
 
 kotest = "5.8.1"                    
 kotest-extensions = "1.3.0"         
-turbine = "1.0.0"                   
+turbine = "1.2.1"                   
 mockwebserver = "4.12.0"            
 kotlinx-coroutines-test = "1.10.2"  
 strikt = "0.34.1"                   
