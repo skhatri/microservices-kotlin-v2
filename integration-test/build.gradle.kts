@@ -9,7 +9,7 @@ val junitPlatformVersion = project.findProperty("junitplatform.version") as Stri
 dependencies {
     testImplementation("com.intuit.karate:karate-junit5:1.4.1")
 
-    testImplementation("io.projectreactor:reactor-test:3.7.6")
+    testImplementation("io.projectreactor:reactor-test:3.7.7")
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
