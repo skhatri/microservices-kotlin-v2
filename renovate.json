@@ -1,8 +1,12 @@
 {
-  "extends": ["config:base"],
+  "extends": [
+    "config:recommended"
+  ],
   "packageRules": [
     {
-      "matchManagers": ["gradle"],
+      "matchManagers": [
+        "gradle"
+      ],
       "groupName": "Gradle Dependencies",
       "automerge": false
     }
@@ -10,6 +14,8 @@
   "prHourlyLimit": 0,
   "prConcurrentLimit": 5,
   "onboarding": true,
-  "schedule": [ "* 5-9 * * *" ],
+  "schedule": [
+    "* 5-9 * * *"
+  ],
   "timezone": "Australia/Sydney"
 }
