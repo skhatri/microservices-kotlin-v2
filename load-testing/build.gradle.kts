@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.scala-lang:scala-library:2.13.16")
+    implementation("org.scala-lang:scala-library:3.9.0")
     implementation("org.scala-lang:scala-compiler:2.13.16")
     implementation("io.gatling:gatling-core:3.14.2")
     implementation("io.gatling:gatling-http:3.14.2")
